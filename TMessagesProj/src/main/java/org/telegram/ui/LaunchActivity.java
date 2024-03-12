@@ -188,6 +188,8 @@ import org.telegram.ui.Stories.StoriesController;
 import org.telegram.ui.Stories.StoriesListPlaceProvider;
 import org.telegram.ui.Stories.StoryViewer;
 import org.telegram.ui.Stories.recorder.StoryRecorder;
+import org.teleparanoid.Constants;
+import org.teleparanoid.ui.TeleParanoidSettingsActivity;
 import org.webrtc.voiceengine.WebRtcAudioTrack;
 
 import java.io.BufferedReader;
@@ -647,6 +649,10 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
                     args.putInt("type", MediaActivity.TYPE_STORIES);
                     drawerLayoutContainer.closeDrawer(true);
                     presentFragment(new MediaActivity(args, null));
+                } else if (id == Constants.ParanoidMenuSettingsId) {
+                    Bundle args = new Bundle();
+                    presentFragment(new TeleParanoidSettingsActivity(args));
+                    drawerLayoutContainer.closeDrawer(false);
                 }
             }
         });
