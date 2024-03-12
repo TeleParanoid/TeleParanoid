@@ -28,8 +28,10 @@ import java.util.List;
 public class UserConfig extends BaseController {
 
     public static int selectedAccount;
+    // TeleParanoid begin
     public final static int MAX_ACCOUNT_DEFAULT_COUNT = 3;
-    public final static int MAX_ACCOUNT_COUNT = 4;
+    public final static int MAX_ACCOUNT_COUNT = 8;
+    // TeleParanoid end
 
     private final Object sync = new Object();
     private volatile boolean configLoaded;
@@ -549,6 +551,10 @@ public class UserConfig extends BaseController {
     }
 
     public boolean isPremium() {
+        // TeleParanoid start
+        if (true) return true;
+        // TeleParanoid end
+
         if (currentUser == null) {
             return false;
         }

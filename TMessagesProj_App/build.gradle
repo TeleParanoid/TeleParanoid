@@ -67,7 +67,7 @@ android {
             debuggable true
             jniDebuggable true
             signingConfig signingConfigs.debug
-            applicationIdSuffix ".beta"
+            applicationIdSuffix ".paranoid.beta"
             minifyEnabled false
             shrinkResources false
             multiDexEnabled true
@@ -79,7 +79,7 @@ android {
             debuggable false
             jniDebuggable false
             signingConfig signingConfigs.release
-            applicationIdSuffix ".web"
+            applicationIdSuffix ".paranoid.web"
             minifyEnabled true
             multiDexEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), '../TMessagesProj/proguard-rules.pro'
@@ -90,6 +90,7 @@ android {
             debuggable false
             jniDebuggable false
             signingConfig signingConfigs.release
+            applicationIdSuffix ".paranoid"
             minifyEnabled true
             shrinkResources false
             multiDexEnabled true
