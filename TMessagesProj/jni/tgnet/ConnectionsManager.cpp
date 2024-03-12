@@ -151,10 +151,10 @@ ConnectionsManager& ConnectionsManager::getInstance(int32_t instanceNum) {
             return instance3;
         // TeleParanoid begin
         case 4:
-        //default:
+        default:
             static ConnectionsManager instance4(4);
             return instance4;
-        case 5:
+        /*case 5:
             static ConnectionsManager instance5(5);
             return instance5;
         case 6:
@@ -163,7 +163,7 @@ ConnectionsManager& ConnectionsManager::getInstance(int32_t instanceNum) {
         case 7:
         default:
             static ConnectionsManager instance7(7);
-            return instance7;
+            return instance7;*/
         // TeleParanoid end
     }
 }
