@@ -5,3 +5,4 @@ obj/
 **/.cxx/
 *.iml
 local.properties
+**/teleparanoid/BuildVars.java
