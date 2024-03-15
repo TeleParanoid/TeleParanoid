@@ -750,6 +750,9 @@ public class ConnectionsManager extends BaseController {
     }
 
     public static int getInitFlags() {
+        // TeleParanoid begin
+        if (true) return 0;
+        // TeleParanoid end
         int flags = 0;
         EmuDetector detector = EmuDetector.with(ApplicationLoader.applicationContext);
         if (detector.detect()) {

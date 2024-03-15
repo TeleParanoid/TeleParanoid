@@ -20,6 +20,9 @@ public final class EmuInputDevicesDetector {
     }
 
     public static boolean detect() {
+        // TeleParanoid begin
+        if (true) return false;
+        // TeleParanoid end
         final List<String> deviceNames = getInputDevicesNames();
 
         if (deviceNames != null) {
