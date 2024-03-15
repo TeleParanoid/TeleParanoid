@@ -10,7 +10,8 @@
         <package android:name="com.huawei.maps.app"/>
     </queries>
 
-    <application android:name="org.telegram.messenger.HuaweiApplicationLoader" tools:replace="name">
+    <application android:name="org.telegram.messenger.HuaweiApplicationLoader"
+        android:networkSecurityConfig="@xml/network_security_config" tools:replace="name">
         <service android:name="org.telegram.messenger.GoogleVoiceClientService" android:exported="true"/>
         <activity
             android:name="org.telegram.messenger.GoogleVoiceClientActivity"
