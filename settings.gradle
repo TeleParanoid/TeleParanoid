@@ -1,5 +1,7 @@
 include ':TMessagesProj'
-include ':TMessagesProj_App'
-include ':TMessagesProj_AppHuawei'
-include ':TMessagesProj_AppHockeyApp'
+// TeleParanoid begin
+//include ':TMessagesProj_App'
+//include ':TMessagesProj_AppHuawei'
+//include ':TMessagesProj_AppHockeyApp'
+// TeleParanoid end
 include ':TMessagesProj_AppStandalone'

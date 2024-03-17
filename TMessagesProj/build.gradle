@@ -25,6 +25,7 @@ dependencies {
     implementation 'androidx.multidex:multidex:2.0.1'
     implementation "androidx.sharetarget:sharetarget:1.2.0"
     implementation 'androidx.interpolator:interpolator:1.0.0'
+    implementation "androidx.security:security-crypto:1.1.0-alpha03"
 
     compileOnly 'org.checkerframework:checker-qual:2.5.2'
     compileOnly 'org.checkerframework:checker-compat-qual:2.5.0'
@@ -93,7 +94,7 @@ android {
     defaultConfig.versionCode = Integer.parseInt(APP_VERSION_CODE)
 
     defaultConfig {
-        minSdkVersion 19
+        minSdkVersion 23
         targetSdkVersion 33
         versionName "8.9.0"
 
@@ -125,47 +126,47 @@ android {
             buildConfigField "boolean", "BUILD_HOST_IS_WINDOWS", isWindows
         }
 
-        HA_private {
-            debuggable false
-            jniDebuggable false
-            minifyEnabled true
-            multiDexEnabled true
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), '../TMessagesProj/proguard-rules.pro'
-            ndk.debugSymbolLevel = 'FULL'
-            buildConfigField "String", "BUILD_VERSION_STRING", "\"" + APP_VERSION_NAME + "\""
-            buildConfigField "String", "APP_CENTER_HASH", "\"" + getProps("APP_CENTER_HASH_PRIVATE") + "\""
-            buildConfigField "boolean", "DEBUG_VERSION", "true"
-            buildConfigField "boolean", "DEBUG_PRIVATE_VERSION", "true"
-            buildConfigField "boolean", "BUILD_HOST_IS_WINDOWS", isWindows
-        }
-
-        HA_public {
-            debuggable false
-            jniDebuggable false
-            minifyEnabled true
-            multiDexEnabled true
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), '../TMessagesProj/proguard-rules.pro'
-            ndk.debugSymbolLevel = 'FULL'
-            buildConfigField "String", "BUILD_VERSION_STRING", "\"" + APP_VERSION_NAME + "\""
-            buildConfigField "String", "APP_CENTER_HASH", "\"" + getProps("APP_CENTER_HASH_PUBLIC") + "\""
-            buildConfigField "boolean", "DEBUG_VERSION", "true"
-            buildConfigField "boolean", "DEBUG_PRIVATE_VERSION", "false"
-            buildConfigField "boolean", "BUILD_HOST_IS_WINDOWS", isWindows
-        }
-
-        HA_hardcore {
-            debuggable false
-            jniDebuggable false
-            minifyEnabled true
-            multiDexEnabled true
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), '../TMessagesProj/proguard-rules.pro'
-            ndk.debugSymbolLevel = 'FULL'
-            buildConfigField "String", "BUILD_VERSION_STRING", "\"" + APP_VERSION_NAME + "\""
-            buildConfigField "String", "APP_CENTER_HASH", "\"" + getProps("APP_CENTER_HASH_HARDCORE") + "\""
-            buildConfigField "boolean", "DEBUG_VERSION", "true"
-            buildConfigField "boolean", "DEBUG_PRIVATE_VERSION", "true"
-            buildConfigField "boolean", "BUILD_HOST_IS_WINDOWS", isWindows
-        }
+//        HA_private {
+//            debuggable false
+//            jniDebuggable false
+//            minifyEnabled true
+//            multiDexEnabled true
+//            proguardFiles getDefaultProguardFile('proguard-android.txt'), '../TMessagesProj/proguard-rules.pro'
+//            ndk.debugSymbolLevel = 'FULL'
+//            buildConfigField "String", "BUILD_VERSION_STRING", "\"" + APP_VERSION_NAME + "\""
+//            buildConfigField "String", "APP_CENTER_HASH", "\"" + getProps("APP_CENTER_HASH_PRIVATE") + "\""
+//            buildConfigField "boolean", "DEBUG_VERSION", "true"
+//            buildConfigField "boolean", "DEBUG_PRIVATE_VERSION", "true"
+//            buildConfigField "boolean", "BUILD_HOST_IS_WINDOWS", isWindows
+//        }
+//
+//        HA_public {
+//            debuggable false
+//            jniDebuggable false
+//            minifyEnabled true
+//            multiDexEnabled true
+//            proguardFiles getDefaultProguardFile('proguard-android.txt'), '../TMessagesProj/proguard-rules.pro'
+//            ndk.debugSymbolLevel = 'FULL'
+//            buildConfigField "String", "BUILD_VERSION_STRING", "\"" + APP_VERSION_NAME + "\""
+//            buildConfigField "String", "APP_CENTER_HASH", "\"" + getProps("APP_CENTER_HASH_PUBLIC") + "\""
+//            buildConfigField "boolean", "DEBUG_VERSION", "true"
+//            buildConfigField "boolean", "DEBUG_PRIVATE_VERSION", "false"
+//            buildConfigField "boolean", "BUILD_HOST_IS_WINDOWS", isWindows
+//        }
+//
+//        HA_hardcore {
+//            debuggable false
+//            jniDebuggable false
+//            minifyEnabled true
+//            multiDexEnabled true
+//            proguardFiles getDefaultProguardFile('proguard-android.txt'), '../TMessagesProj/proguard-rules.pro'
+//            ndk.debugSymbolLevel = 'FULL'
+//            buildConfigField "String", "BUILD_VERSION_STRING", "\"" + APP_VERSION_NAME + "\""
+//            buildConfigField "String", "APP_CENTER_HASH", "\"" + getProps("APP_CENTER_HASH_HARDCORE") + "\""
+//            buildConfigField "boolean", "DEBUG_VERSION", "true"
+//            buildConfigField "boolean", "DEBUG_PRIVATE_VERSION", "true"
+//            buildConfigField "boolean", "BUILD_HOST_IS_WINDOWS", isWindows
+//        }
 
         standalone {
             debuggable false
