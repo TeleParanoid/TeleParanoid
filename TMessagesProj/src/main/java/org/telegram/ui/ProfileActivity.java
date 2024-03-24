@@ -109,8 +109,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager.widget.PagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 
-import com.google.android.exoplayer2.util.Log;
-
 import org.telegram.PhoneFormat.PhoneFormat;
 import org.telegram.messenger.AccountInstance;
 import org.telegram.messenger.AndroidUtilities;
@@ -150,7 +148,6 @@ import org.telegram.tgnet.ConnectionsManager;
 import org.telegram.tgnet.SerializedData;
 import org.telegram.tgnet.TLObject;
 import org.telegram.tgnet.TLRPC;
-import org.telegram.tgnet.tl.TL_stories;
 import org.telegram.ui.ActionBar.ActionBar;
 import org.telegram.ui.ActionBar.ActionBarMenu;
 import org.telegram.ui.ActionBar.ActionBarMenuItem;
@@ -540,6 +537,9 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
     private int userInfoRow;
     private int channelInfoRow;
     private int usernameRow;
+    // TeleParanoid begin
+    private int idRow;
+    // TeleParanoid end
     private int notificationsDividerRow;
     private int notificationsRow;
     private int bizHoursRow;
@@ -5588,7 +5588,10 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
     }
 
     private boolean processOnClickOrPress(final int position, final View view, final float x, final float y) {
-        if (position == usernameRow || position == setUsernameRow) {
+        //if (position == usernameRow || position == setUsernameRow) {
+        // TeleParanoid begin
+        if (position == usernameRow || position == setUsernameRow || position == idRow) {
+        // TeleParanoid end
             final String username;
             if (userId != 0) {
                 final TLRPC.User user = getMessagesController().getUser(userId);
@@ -5607,6 +5610,22 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
                 return false;
             }
             if (userId == 0) {
+
+                // TeleParanoid begin
+                if(position == idRow){
+                    try {
+                        android.content.ClipboardManager clipboard = (android.content.ClipboardManager) ApplicationLoader.applicationContext.getSystemService(Context.CLIPBOARD_SERVICE);
+                        String text = String.valueOf(chatId);
+                        BulletinFactory.of(this).createCopyBulletin(LocaleController.getString(R.string.IdCopied), resourcesProvider).show();
+                        android.content.ClipData clip = android.content.ClipData.newPlainText("label", text);
+                        clipboard.setPrimaryClip(clip);
+                    } catch (Exception e) {
+                        FileLog.e(e);
+                    }
+                    return true;
+                }
+                // TeleParanoid end
+
                 TLRPC.Chat chat = getMessagesController().getChat(chatId);
                 String link;
                 if (ChatObject.isPublic(chat)) {
@@ -5625,8 +5644,11 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
             } else {
                 try {
                     android.content.ClipboardManager clipboard = (android.content.ClipboardManager) ApplicationLoader.applicationContext.getSystemService(Context.CLIPBOARD_SERVICE);
-                    String text = "@" + username;
-                    BulletinFactory.of(this).createCopyBulletin(LocaleController.getString("UsernameCopied", R.string.UsernameCopied), resourcesProvider).show();
+                    // TeleParanoid begin
+                    String text = position == idRow ? String.valueOf(userId) : "@" + username;
+                    //String text = "@" + username;
+                    // TeleParanoid end
+                    BulletinFactory.of(this).createCopyBulletin(position == idRow ? LocaleController.getString(R.string.IdCopied) : LocaleController.getString("UsernameCopied", R.string.UsernameCopied), resourcesProvider).show();
                     android.content.ClipData clip = android.content.ClipData.newPlainText("label", text);
                     clipboard.setPrimaryClip(clip);
                 } catch (Exception e) {
@@ -8032,6 +8054,9 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
         locationRow = -1;
         channelInfoRow = -1;
         usernameRow = -1;
+        // TeleParanoid begin
+        idRow = -1;
+        // TeleParanoid end
         settingsTimerRow = -1;
         settingsKeyRow = -1;
         notificationsDividerRow = -1;
@@ -8175,6 +8200,9 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
                 if (user != null && username != null) {
                     usernameRow = rowCount++;
                 }
+                // TeleParanoid begin
+                idRow = rowCount++;
+                // TeleParanoid end
                 if (userInfo != null) {
                     if (userInfo.business_work_hours != null) {
                         bizHoursRow = rowCount++;
@@ -8183,7 +8211,10 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
                         bizLocationRow = rowCount++;
                     }
                 }
-                if (phoneRow != -1 || userInfoRow != -1 || usernameRow != -1 || bizHoursRow != -1 || bizLocationRow != -1) {
+                //if (phoneRow != -1 || userInfoRow != -1 || usernameRow != -1 || bizHoursRow != -1 || bizLocationRow != -1) {
+                // TeleParanoid begin
+                if (idRow != -1 || phoneRow != -1 || userInfoRow != -1 || usernameRow != -1 || bizHoursRow != -1 || bizLocationRow != -1) {
+                // TeleParanoid end
                     notificationsDividerRow = rowCount++;
                 }
                 if (userId != getUserConfig().getClientUserId()) {
@@ -8256,6 +8287,9 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
                 if (ChatObject.isPublic(currentChat)) {
                     usernameRow = rowCount++;
                 }
+                // TeleParanoid begin
+                idRow = rowCount++;
+                // TeleParanoid end
             }
             if (infoHeaderRow != -1) {
                 notificationsDividerRow = rowCount++;
@@ -10370,7 +10404,14 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
                             usernames = new ArrayList<>();
                         }
                         detailCell.setTextAndValue(text, alsoUsernamesString(username, usernames, value), isTopic || bizHoursRow != -1 || bizLocationRow != -1);
-                    } else if (position == locationRow) {
+                    }
+                    // TeleParanoid begin
+                    else if (position == idRow) {
+                        String text = String.valueOf(userId != 0 ? userId : chatId);
+                        detailCell.setTextAndValue(text, "ID", false);
+                    }
+                    // TeleParanoid end
+                    else if (position == locationRow) {
                         if (chatInfo != null && chatInfo.location instanceof TLRPC.TL_channelLocation) {
                             TLRPC.TL_channelLocation location = (TLRPC.TL_channelLocation) chatInfo.location;
                             detailCell.setTextAndValue(location.address, LocaleController.getString("AttachLocation", R.string.AttachLocation), false);
@@ -10846,7 +10887,10 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
                 return VIEW_TYPE_HEADER;
             } else if (position == phoneRow || position == locationRow || position == numberRow) {
                 return VIEW_TYPE_TEXT_DETAIL;
-            } else if (position == usernameRow || position == setUsernameRow) {
+            //} else if (position == usernameRow || position == setUsernameRow) {
+            // TeleParanoid begin
+            } else if (position == usernameRow || position == setUsernameRow || position == idRow) {
+            // TeleParanoid end
                 return VIEW_TYPE_TEXT_DETAIL_MULTILINE;
             } else if (position == userInfoRow || position == channelInfoRow || position == bioRow) {
                 return VIEW_TYPE_ABOUT_LINK;
@@ -12128,6 +12172,9 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
             put(++pointer, userInfoRow, sparseIntArray);
             put(++pointer, channelInfoRow, sparseIntArray);
             put(++pointer, usernameRow, sparseIntArray);
+            // TeleParanoid begin
+            put(++pointer, idRow, sparseIntArray);
+            // TeleParanoid end
             put(++pointer, notificationsDividerRow, sparseIntArray);
             put(++pointer, reportDividerRow, sparseIntArray);
             put(++pointer, notificationsRow, sparseIntArray);

@@ -8450,5 +8450,6 @@
     <string name="SetApiHashHeader">Set api_hash</string>
     <string name="ApiHash">api_hash</string>
     <string name="ApiId">api_id</string>
+    <string name="IdCopied">ID copied</string>
     <!-- TeleParanoid end-->
 </resources>
