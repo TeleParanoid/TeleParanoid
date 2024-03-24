@@ -5596,6 +5596,11 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
             if (userId != 0) {
                 final TLRPC.User user = getMessagesController().getUser(userId);
                 String username1 = UserObject.getPublicUsername(user);
+                // TeleParanoid begin
+                if(position == idRow && username1 == null) {
+                    username1 = "no username";
+                }
+                // TeleParanoid end
                 if (user == null || username1 == null) {
                     return false;
                 }
