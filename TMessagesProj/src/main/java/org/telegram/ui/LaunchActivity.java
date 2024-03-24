@@ -650,8 +650,7 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
                     drawerLayoutContainer.closeDrawer(true);
                     presentFragment(new MediaActivity(args, null));
                 } else if (id == Constants.ParanoidMenuSettingsId) {
-                    Bundle args = new Bundle();
-                    presentFragment(new TeleParanoidSettingsActivity(args));
+                    presentFragment(new TeleParanoidSettingsActivity());
                     drawerLayoutContainer.closeDrawer(false);
                 }
             }

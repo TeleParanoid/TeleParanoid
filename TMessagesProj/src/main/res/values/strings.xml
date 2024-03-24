@@ -8443,5 +8443,12 @@
     <string name="FilterNewChats">New chats</string>
     <!-- TeleParanoid begin -->
     <string name="TeleParanoidSettings">TeleParanoid Settings</string>
+    <string name="ChangeApiCredentials">Change API credentials</string>
+    <string name="ObtainingApiIdUrl">https://core.telegram.org/api/obtaining_api_id</string>
+    <string name="ObtainingApiIdGuide">Obtaining api_id guide</string>
+    <string name="SetApiIdHeader">Set api_id</string>
+    <string name="SetApiHashHeader">Set api_hash</string>
+    <string name="ApiHash">api_hash</string>
+    <string name="ApiId">api_id</string>
     <!-- TeleParanoid end-->
 </resources>

@@ -8,6 +8,8 @@
 
 package org.telegram.ui;
 
+import static androidx.core.content.ContextCompat.startActivity;
+
 import android.Manifest;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
@@ -66,6 +68,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewOutlineProvider;
+import android.view.accessibility.AccessibilityNodeInfo;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
@@ -93,12 +96,10 @@ import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.safetynet.SafetyNet;
-import com.google.zxing.common.detector.MathUtils;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.telegram.PhoneFormat.PhoneFormat;
-import org.telegram.messenger.AccountInstance;
 import org.telegram.messenger.AndroidUtilities;
 import org.telegram.messenger.ApplicationLoader;
 import org.telegram.messenger.AuthTokensHelper;
@@ -161,6 +162,7 @@ import org.telegram.ui.Components.TransformableLoginButtonView;
 import org.telegram.ui.Components.URLSpanNoUnderline;
 import org.telegram.ui.Components.VerticalPositionAutoAnimator;
 import org.telegram.ui.Components.spoilers.SpoilersTextView;
+import org.teleparanoid.ui.ApiSetupActivity;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -269,6 +271,7 @@ public class LoginActivity extends BaseFragment implements NotificationCenter.No
     @ViewNumber
     private int currentViewNum;
     private SlideView[] views = new SlideView[16];
+
     private CustomPhoneKeyboardView keyboardView;
     private ValueAnimator keyboardAnimator;
 
@@ -1808,6 +1811,54 @@ public class LoginActivity extends BaseFragment implements NotificationCenter.No
         }
     }
 
+    // TeleParanoid begin
+    private LinearLayout createChangeApiCredentialsButton(Context context){
+
+        LinearLayout linearLayout = new LinearLayout(context);
+        linearLayout.setOrientation(LinearLayout.HORIZONTAL);
+        linearLayout.setGravity(Gravity.CENTER);
+
+        ImageView imageView = new ImageView(context) {
+            @Override
+            public void onInitializeAccessibilityNodeInfo(AccessibilityNodeInfo info) {
+                super.onInitializeAccessibilityNodeInfo(info);
+            }
+        };
+        imageView.setImageResource(R.drawable.msg_permissions);
+        imageView.setScaleType(ImageView.ScaleType.CENTER);
+        imageView.setContentDescription(LocaleController.getString(R.string.ChangeApiCredentials));
+        imageView.setBackground(Theme.createSelectorDrawable(Theme.getColor(Theme.key_listSelector)));
+        imageView.setColorFilter(new PorterDuffColorFilter(Theme.getColor(Theme.key_chat_messagePanelIcons), PorterDuff.Mode.MULTIPLY));
+        AndroidUtilities.updateViewVisibilityAnimated(imageView, true, 0.1f, false);
+
+        imageView.setOnClickListener(v -> {
+            ApiSetupActivity apiSetupActivity = new ApiSetupActivity();
+            presentFragment(apiSetupActivity);
+        });
+
+        TextView textView = new TextView(context);
+        textView.setText(LocaleController.getString(R.string.ChangeApiCredentials));
+
+        textView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 14);
+        textView.setTextColor(Theme.getColor(Theme.key_windowBackgroundWhiteBlueButton));
+        textView.setBackground(null);
+        int padding = AndroidUtilities.dp(16);
+        textView.setPadding(padding, 0, 0, 0);
+        textView.setContentDescription(LocaleController.getString(R.string.ChangeApiCredentials));
+
+        linearLayout.addView(imageView);
+        linearLayout.addView(textView);
+
+        linearLayout.setOnClickListener(v -> {
+            ApiSetupActivity apiSetupActivity = new ApiSetupActivity();
+            presentFragment(apiSetupActivity);
+        });
+
+        return linearLayout;
+    }
+
+    // TeleParanoid end
+
     private TLRPC.TL_help_termsOfService currentTermsOfService;
 
     public class PhoneView extends SlideView implements AdapterView.OnItemSelectedListener, NotificationCenter.NotificationCenterDelegate {
@@ -1839,11 +1890,17 @@ public class LoginActivity extends BaseFragment implements NotificationCenter.No
         private boolean nextPressed = false;
         private boolean confirmedNumber = false;
 
+
         public PhoneView(Context context) {
             super(context);
 
             setOrientation(VERTICAL);
             setGravity(Gravity.CENTER);
+
+            // TeleParanoid begin
+            View changeApiButton = createChangeApiCredentialsButton(context);
+            addView(changeApiButton, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT, Gravity.CENTER_HORIZONTAL, 32, 0, 32, 0));
+            // TeleParanoid end
 
             titleView = new TextView(context);
             titleView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 18);

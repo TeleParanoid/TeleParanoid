@@ -27,9 +27,9 @@ public class BuildVars {
     public static String BUILD_VERSION_STRING = BuildConfig.BUILD_VERSION_STRING;
 
     // TeleParanoid begin
-    public static int APP_ID = org.teleparanoid.BuildVars.APP_ID;
-    public static String APP_HASH =  org.teleparanoid.BuildVars.APP_HASH;
-    public static String TELEPARANOID_BUILD_VERSION_STRING = "0.1.0";
+    public static int APP_ID;
+    public static String APP_HASH;
+    public static String TELEPARANOID_BUILD_VERSION_STRING = "0.2.0";
     // TeleParanoid end
 
     // SafetyNet key for Google Identity SDK, set it to empty to disable
@@ -47,6 +47,16 @@ public class BuildVars {
         if (ApplicationLoader.applicationContext != null) {
             SharedPreferences sharedPreferences = ApplicationLoader.applicationContext.getSharedPreferences("systemConfig", Context.MODE_PRIVATE);
             LOGS_ENABLED = DEBUG_VERSION || sharedPreferences.getBoolean("logsEnabled", DEBUG_VERSION);
+
+            // TeleParanoid begin
+            try {
+                APP_ID = org.teleparanoid.TeleParanoidConfig.getApiId();
+                APP_HASH = org.teleparanoid.TeleParanoidConfig.getAppHash();
+            }
+            catch (Throwable ex) {
+                FileLog.e(ex);
+            }
+            // TeleParanoid end
         }
     }
 
