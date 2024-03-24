@@ -5321,6 +5321,10 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
     }
 
     public void checkAppUpdate(boolean force, Browser.Progress progress) {
+        // TeleParanoid begin
+        if(true) return;
+        // TeleParanoid end
+
         if (!force && BuildVars.DEBUG_VERSION || !force && !BuildVars.CHECK_UPDATES) {
             return;
         }
