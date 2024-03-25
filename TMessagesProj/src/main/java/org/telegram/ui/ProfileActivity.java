@@ -2008,7 +2008,10 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
             flagSecure = null;
         }
         if (layout != null && layout.getParentActivity() != null) {
-            flagSecure = new FlagSecureReason(layout.getParentActivity().getWindow(), () -> currentEncryptedChat != null || getMessagesController().isChatNoForwards(currentChat));
+            // TeleParanoid begin
+//            flagSecure = new FlagSecureReason(layout.getParentActivity().getWindow(), () -> currentEncryptedChat != null || getMessagesController().isChatNoForwards(currentChat));
+            flagSecure = new FlagSecureReason(layout.getParentActivity().getWindow(), () -> !org.teleparanoid.TeleParanoidConfig.isCaptureScreenAllowed() && (currentEncryptedChat != null || getMessagesController().isChatNoForwards(currentChat)));
+            // TeleParanoid end
         }
     }
 

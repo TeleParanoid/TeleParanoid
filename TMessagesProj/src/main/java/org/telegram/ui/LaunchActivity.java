@@ -373,7 +373,10 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
             }
         }
         getWindow().setBackgroundDrawableResource(R.drawable.transparent);
-        flagSecureReason = new FlagSecureReason(getWindow(), () -> SharedConfig.passcodeHash.length() > 0 && !SharedConfig.allowScreenCapture);
+        // TeleParanoid begin
+//        flagSecureReason = new FlagSecureReason(getWindow(), () -> SharedConfig.passcodeHash.length() > 0 && !SharedConfig.allowScreenCapture);
+        flagSecureReason = new FlagSecureReason(getWindow(), () -> SharedConfig.passcodeHash.length() > 0 && !org.teleparanoid.TeleParanoidConfig.isCaptureScreenAllowed() && !SharedConfig.allowScreenCapture);
+        // TeleParanoid end
         flagSecureReason.attach();
 
         super.onCreate(savedInstanceState);

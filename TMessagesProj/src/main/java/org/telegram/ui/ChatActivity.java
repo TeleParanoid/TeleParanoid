@@ -7505,7 +7505,10 @@ public class ChatActivity extends BaseFragment implements NotificationCenter.Not
         chatScrollHelper.setScrollListener(this::invalidateMessagesVisiblePart);
         chatScrollHelper.setAnimationCallback(chatScrollHelperCallback);
 
-        flagSecure = new FlagSecureReason(getParentActivity().getWindow(), () -> currentEncryptedChat != null || getMessagesController().isChatNoForwards(currentChat));
+        // TeleParanoid begin
+//        flagSecure = new FlagSecureReason(getParentActivity().getWindow(), () -> currentEncryptedChat != null || getMessagesController().isChatNoForwards(currentChat));
+        flagSecure = new FlagSecureReason(getParentActivity().getWindow(), () -> !org.teleparanoid.TeleParanoidConfig.isCaptureScreenAllowed() && (currentEncryptedChat != null || getMessagesController().isChatNoForwards(currentChat)));
+        // TeleParanoid end
 
         if (oldMessage != null) {
             chatActivityEnterView.setFieldText(oldMessage);

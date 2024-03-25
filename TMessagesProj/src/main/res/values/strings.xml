@@ -8451,5 +8451,6 @@
     <string name="ApiHash">api_hash</string>
     <string name="ApiId">api_id</string>
     <string name="IdCopied">ID copied</string>
+    <string name="AllowCaptureScreen">Allow capture screen everywhere</string>
     <!-- TeleParanoid end-->
 </resources>
