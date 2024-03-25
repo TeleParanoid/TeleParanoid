@@ -63,7 +63,7 @@ public class ApiSetupActivity extends BaseFragment {
         }
 
 
-        private LinearLayout createLinearLayout(Context context, EditTextBoldCursor editText, ImageView showInputButton){
+        private LinearLayout createLinearLayout(Context context, EditTextBoldCursor editText, ImageView showInputButton) {
             LinearLayout linearLayout = new LinearLayout(context);
             linearLayout.setOrientation(LinearLayout.HORIZONTAL);
 
@@ -74,7 +74,7 @@ public class ApiSetupActivity extends BaseFragment {
         }
 
 
-        private EditTextBoldCursor createEditText(Context context, String text, String contextDescription, OnPasswordEditorDone onEditorDone){
+        private EditTextBoldCursor createEditText(Context context, String text, String contextDescription, OnPasswordEditorDone onEditorDone) {
             EditTextBoldCursor editText = new EditTextBoldCursor(context);
             editText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 18);
             editText.setTextColor(Theme.getColor(Theme.key_windowBackgroundWhiteBlackText));
@@ -100,20 +100,23 @@ public class ApiSetupActivity extends BaseFragment {
             });
             editText.addTextChangedListener(new TextWatcher() {
                 @Override
-                public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+                public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                }
 
                 @Override
-                public void onTextChanged(CharSequence s, int start, int before, int count) {}
+                public void onTextChanged(CharSequence s, int start, int before, int count) {
+                }
 
                 @Override
-                public void afterTextChanged(Editable s) {}
+                public void afterTextChanged(Editable s) {
+                }
             });
 
             return editText;
         }
 
 
-        private ImageView createShowInputButton(Context context){
+        private ImageView createShowInputButton(Context context) {
             ImageView showInputButton = new ImageView(context) {
                 @Override
                 public void onInitializeAccessibilityNodeInfo(AccessibilityNodeInfo info) {
@@ -146,7 +149,7 @@ public class ApiSetupActivity extends BaseFragment {
         }
 
 
-        private OutlineTextContainerView createOutlineView(Context context, String contentDescription, EditTextBoldCursor editText, LinearLayout linearLayout){
+        private OutlineTextContainerView createOutlineView(Context context, String contentDescription, EditTextBoldCursor editText, LinearLayout linearLayout) {
             OutlineTextContainerView outlineView = new OutlineTextContainerView(context);
             outlineView.setText(contentDescription);
             outlineView.animateSelection(1f, false);
@@ -171,7 +174,8 @@ public class ApiSetupActivity extends BaseFragment {
 
     private int apiId;
 
-    private PasswordRow apiIdPasswordRow;;
+    private PasswordRow apiIdPasswordRow;
+    ;
     private String apiHash;
     private PasswordRow apiHashPasswordRow;
 
@@ -182,14 +186,14 @@ public class ApiSetupActivity extends BaseFragment {
         int apiId = 0;
         try {
             apiId = TeleParanoidConfig.getApiId();
-        } catch (Throwable e){
+        } catch (Throwable e) {
             FileLog.e(e);
         }
 
         String apiHash = "";
         try {
             apiHash = TeleParanoidConfig.getAppHash();
-        } catch (Throwable e){
+        } catch (Throwable e) {
             FileLog.e(e);
         }
 
@@ -227,7 +231,7 @@ public class ApiSetupActivity extends BaseFragment {
         }
     }
 
-    private View createTitleGuideView(Context context){
+    private View createTitleGuideView(Context context) {
         LinkSpanDrawable.LinksTextView linksTextView = new LinkSpanDrawable.LinksTextView(context);
         linksTextView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 15);
         linksTextView.setTextColor(Theme.getColor(Theme.key_windowBackgroundWhiteGrayText8));
@@ -249,7 +253,7 @@ public class ApiSetupActivity extends BaseFragment {
         return linksTextView;
     }
 
-    private View createLockImageView(Context context){
+    private View createLockImageView(Context context) {
 
         lockImageView = new RLottieImageView(context);
         lockImageView.setAnimation(R.raw.tsv_setup_intro, 120, 120);
@@ -260,7 +264,7 @@ public class ApiSetupActivity extends BaseFragment {
     }
 
 
-    private void setupActionBar(Context context){
+    private void setupActionBar(Context context) {
         actionBar.setBackButtonImage(R.drawable.ic_ab_back);
         actionBar.setAllowOverlayTitle(true);
         actionBar.setTitle(LocaleController.getString(R.string.ChangeApiCredentials));
@@ -280,7 +284,7 @@ public class ApiSetupActivity extends BaseFragment {
     }
 
 
-    private PasswordRow createApiIdRow(Context context){
+    private PasswordRow createApiIdRow(Context context) {
         String text = String.valueOf(apiId);
         String contentDescription = LocaleController.getString(R.string.ApiId);
         OnPasswordEditorDone onEditorDone = () -> {
@@ -293,7 +297,7 @@ public class ApiSetupActivity extends BaseFragment {
     }
 
 
-    private PasswordRow createApiHashRow(Context context){
+    private PasswordRow createApiHashRow(Context context) {
         String text = apiHash;
         String contentDescription = LocaleController.getString(R.string.ApiHash);
         OnPasswordEditorDone onEditorDone = () -> {
@@ -481,12 +485,11 @@ public class ApiSetupActivity extends BaseFragment {
             finishFragment();
         }
 
-        try{
+        try {
             TeleParanoidConfig.setApiId(newApiIdInt);
             TeleParanoidConfig.setAppHash(newApiHash);
             finishFragment();
-        }
-        catch (Throwable e){
+        } catch (Throwable e) {
             FileLog.e(e);
         }
     }
