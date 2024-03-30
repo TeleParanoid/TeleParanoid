@@ -4,6 +4,7 @@ import android.content.SharedPreferences;
 
 import org.telegram.tgnet.ConnectionsManager;
 import org.telegram.ui.Components.Paint.PersistColorPalette;
+import org.teleparanoid.TeleParanoidConfig;
 
 public class AccountInstance {
 
@@ -101,4 +102,10 @@ public class AccountInstance {
     public int getCurrentAccount() {
         return currentAccount;
     }
+
+    // TeleParanoid begin
+    public TeleParanoidConfig getTeleParanoidConfig() {
+        return TeleParanoidConfig.getInstance(currentAccount);
+    }
+    // TeleParanoid end
 }

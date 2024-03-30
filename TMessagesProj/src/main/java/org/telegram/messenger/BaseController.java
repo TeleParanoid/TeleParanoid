@@ -2,6 +2,7 @@ package org.telegram.messenger;
 
 import org.telegram.tgnet.ConnectionsManager;
 import org.telegram.ui.Components.Paint.PersistColorPalette;
+import org.teleparanoid.TeleParanoidConfig;
 
 public class BaseController {
 
@@ -84,4 +85,10 @@ public class BaseController {
     protected final MemberRequestsController getMemberRequestsController() {
         return parentAccountInstance.getMemberRequestsController();
     }
+
+    // TeleParanoid begin
+    protected final TeleParanoidConfig getTeleParanoidConfig() {
+        return parentAccountInstance.getTeleParanoidConfig();
+    }
+    // TeleParanoid end
 }

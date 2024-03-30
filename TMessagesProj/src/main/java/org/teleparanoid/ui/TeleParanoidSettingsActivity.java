@@ -120,7 +120,9 @@ public class TeleParanoidSettingsActivity extends BaseFragment implements Notifi
                 final boolean isChecked = textCheckCell.getCheckBox().isChecked();
 
                 try {
-                    TeleParanoidConfig.setIsCaptureScreenAllowed(!isChecked);
+                    TeleParanoidConfig tpConfig = TeleParanoidConfig.getInstance(currentAccount);
+                    tpConfig.isCaptureScreenAllowed = !isChecked;
+                    tpConfig.saveConfig();
                     textCheckCell.setChecked(!isChecked);
                 }
                 catch (Throwable e){
@@ -282,7 +284,8 @@ public class TeleParanoidSettingsActivity extends BaseFragment implements Notifi
                     TextCheckCell textCheckCell = (TextCheckCell) holder.itemView;
                     if (position == allowCaptureScreenRow) {
 
-                        boolean isCaptureScreenAllowed = TeleParanoidConfig.isCaptureScreenAllowed();
+                        TeleParanoidConfig tpConfig = TeleParanoidConfig.getInstance(currentAccount);
+                        final boolean isCaptureScreenAllowed = tpConfig.isCaptureScreenAllowed;
 
                         textCheckCell.setTextAndCheck(LocaleController.getString(R.string.AllowCaptureScreen), isCaptureScreenAllowed, false);
                     }

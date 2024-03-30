@@ -34,6 +34,7 @@ import org.telegram.messenger.StatsController;
 import org.telegram.messenger.UserConfig;
 import org.telegram.messenger.UserObject;
 import org.telegram.messenger.Utilities;
+import org.teleparanoid.TeleParanoidConfig;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -234,6 +235,10 @@ public class ConnectionsManager extends BaseController {
             systemVersion = "SDK Unknown";
         }
         getUserConfig().loadConfig();
+
+        // TeleParanoid begin
+        getTeleParanoidConfig().loadConfig();
+        // TeleParanoid end
         String pushString = getRegId();
         String fingerprint = AndroidUtilities.getCertificateSHA256Fingerprint();
 

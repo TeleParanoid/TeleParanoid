@@ -234,6 +234,7 @@ import org.telegram.ui.Stories.recorder.HintView2;
 import org.telegram.ui.Stories.recorder.PreviewView;
 import org.telegram.ui.Stories.recorder.StoryEntry;
 import org.telegram.ui.Stories.recorder.StoryRecorder;
+import org.teleparanoid.TeleParanoidConfig;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -7507,7 +7508,7 @@ public class ChatActivity extends BaseFragment implements NotificationCenter.Not
 
         // TeleParanoid begin
 //        flagSecure = new FlagSecureReason(getParentActivity().getWindow(), () -> currentEncryptedChat != null || getMessagesController().isChatNoForwards(currentChat));
-        flagSecure = new FlagSecureReason(getParentActivity().getWindow(), () -> !org.teleparanoid.TeleParanoidConfig.isCaptureScreenAllowed() && (currentEncryptedChat != null || getMessagesController().isChatNoForwards(currentChat)));
+        flagSecure = new FlagSecureReason(getParentActivity().getWindow(), () -> !TeleParanoidConfig.getInstance(currentAccount).isCaptureScreenAllowed && (currentEncryptedChat != null || getMessagesController().isChatNoForwards(currentChat)));
         // TeleParanoid end
 
         if (oldMessage != null) {

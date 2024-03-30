@@ -250,6 +250,7 @@ import org.telegram.ui.Stories.StoriesListPlaceProvider;
 import org.telegram.ui.Stories.StoryViewer;
 import org.telegram.ui.Stories.recorder.DualCameraView;
 import org.telegram.ui.Stories.recorder.StoryRecorder;
+import org.teleparanoid.TeleParanoidConfig;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -2010,7 +2011,7 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
         if (layout != null && layout.getParentActivity() != null) {
             // TeleParanoid begin
 //            flagSecure = new FlagSecureReason(layout.getParentActivity().getWindow(), () -> currentEncryptedChat != null || getMessagesController().isChatNoForwards(currentChat));
-            flagSecure = new FlagSecureReason(layout.getParentActivity().getWindow(), () -> !org.teleparanoid.TeleParanoidConfig.isCaptureScreenAllowed() && (currentEncryptedChat != null || getMessagesController().isChatNoForwards(currentChat)));
+            flagSecure = new FlagSecureReason(layout.getParentActivity().getWindow(), () -> !TeleParanoidConfig.getInstance(currentAccount).isCaptureScreenAllowed && (currentEncryptedChat != null || getMessagesController().isChatNoForwards(currentChat)));
             // TeleParanoid end
         }
     }

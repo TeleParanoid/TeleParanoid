@@ -47,6 +47,7 @@ import org.telegram.ui.Components.ForegroundDetector;
 import org.telegram.ui.Components.Premium.boosts.BoostRepository;
 import org.telegram.ui.IUpdateLayout;
 import org.telegram.ui.LauncherIconController;
+import org.teleparanoid.TeleParanoidConfig;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -222,6 +223,9 @@ public class ApplicationLoader extends Application {
         SharedPrefsHelper.init(applicationContext);
         for (int a = 0; a < UserConfig.MAX_ACCOUNT_COUNT; a++) { //TODO improve account
             UserConfig.getInstance(a).loadConfig();
+            // TeleParanoid begin
+            TeleParanoidConfig.getInstance(a).loadConfig();
+            // TeleParanoid end
             MessagesController.getInstance(a);
             if (a == 0) {
                 SharedConfig.pushStringStatus = "__FIREBASE_GENERATING_SINCE_" + ConnectionsManager.getInstance(a).getCurrentTime() + "__";

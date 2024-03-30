@@ -6,12 +6,82 @@ import android.content.SharedPreferences;
 
 
 import org.telegram.messenger.ApplicationLoader;
+import org.telegram.messenger.BaseController;
+import org.telegram.messenger.FileLog;
+import org.telegram.messenger.NotificationCenter;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 
 
-public class TeleParanoidConfig {
+public class TeleParanoidConfig extends BaseController {
+
+    public boolean isCaptureScreenAllowed;
+
+
+    private static volatile TeleParanoidConfig Instance;
+    private final Object sync = new Object();
+    private volatile boolean configLoaded;
+
+    public TeleParanoidConfig(int num) {
+        super(num);
+    }
+    public static TeleParanoidConfig getInstance(int num) {
+        TeleParanoidConfig localInstance = Instance;
+
+        if (localInstance == null) {
+            synchronized (TeleParanoidConfig.class) {
+                localInstance = Instance;
+                if (localInstance == null) {
+                    Instance = localInstance = new TeleParanoidConfig(num);
+                }
+            }
+        }
+
+        return localInstance;
+    }
+
+
+    public void saveConfig() {
+        NotificationCenter.getInstance(currentAccount).doOnIdle(() -> {
+            if (!configLoaded) {
+                return;
+            }
+            synchronized (sync) {
+                try {
+                    SharedPreferences sharedPreferences = SecureSharedPrefs.getSharedPreferences(ApplicationLoader.applicationContext);
+
+                    SharedPreferences.Editor editor = sharedPreferences.edit();
+
+                    editor.putBoolean("isCaptureScreenAllowed", isCaptureScreenAllowed);
+
+
+                    editor.apply();
+                } catch (Exception e) {
+                    FileLog.e(e);
+                }
+            }
+        });
+    }
+
+
+    public void loadConfig() {
+        synchronized (sync) {
+            if (configLoaded) {
+                return;
+            }
+            try {
+                SharedPreferences sharedPreferences = SecureSharedPrefs.getSharedPreferences(ApplicationLoader.applicationContext);
+
+                isCaptureScreenAllowed = sharedPreferences.getBoolean("isCaptureScreenAllowed", false);
+
+                configLoaded = true;
+            } catch (Throwable e) {
+                FileLog.e(e);
+            }
+        }
+    }
+
 
     public static int getApiId() throws GeneralSecurityException, IOException, NullPointerException, UnsupportedOperationException {
 
@@ -32,24 +102,6 @@ public class TeleParanoidConfig {
 
         org.telegram.messenger.BuildVars.APP_HASH = appHash;
         setString("APP_HASH", appHash);
-    }
-
-    public static boolean isCaptureScreenAllowed() {
-
-        boolean defaultValue = false;
-        boolean value;
-
-        try{
-            value = getBoolean("isCaptureScreenAllowed", defaultValue);
-        } catch (Throwable e){
-            value = defaultValue;
-        }
-
-        return value;
-    }
-
-    public static void setIsCaptureScreenAllowed(boolean isCaptureScreenAllowed) throws GeneralSecurityException, IOException, NullPointerException, UnsupportedOperationException {
-        setBoolean("isCaptureScreenAllowed", isCaptureScreenAllowed);
     }
 
 

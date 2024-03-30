@@ -188,6 +188,7 @@ import org.telegram.ui.Stories.StoriesUtilities;
 import org.telegram.ui.Stories.StoryViewer;
 import org.telegram.ui.Stories.recorder.CaptionContainerView;
 import org.telegram.ui.Stories.recorder.DominantColors;
+import org.teleparanoid.TeleParanoidConfig;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -8936,7 +8937,7 @@ public class ChatMessageCell extends BaseCell implements SeekBar.SeekBarDelegate
             if (window != null) {
                 // TeleParanoid begin
 //                flagSecure = new FlagSecureReason(window, () -> currentMessageObject != null && currentMessageObject.messageOwner != null && (currentMessageObject.messageOwner.noforwards || currentMessageObject.isVoiceOnce() || currentMessageObject.hasRevealedExtendedMedia()));
-                flagSecure = new FlagSecureReason(window, () -> !org.teleparanoid.TeleParanoidConfig.isCaptureScreenAllowed() && currentMessageObject != null && currentMessageObject.messageOwner != null && (currentMessageObject.messageOwner.noforwards || currentMessageObject.isVoiceOnce() || currentMessageObject.hasRevealedExtendedMedia()));
+                flagSecure = new FlagSecureReason(window, () -> !TeleParanoidConfig.getInstance(currentAccount).isCaptureScreenAllowed && currentMessageObject != null && currentMessageObject.messageOwner != null && (currentMessageObject.messageOwner.noforwards || currentMessageObject.isVoiceOnce() || currentMessageObject.hasRevealedExtendedMedia()));
                 // TeleParanoid end
                 if (attachedToWindow) {
                     flagSecure.attach();

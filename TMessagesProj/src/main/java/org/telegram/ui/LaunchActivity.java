@@ -189,6 +189,7 @@ import org.telegram.ui.Stories.StoriesListPlaceProvider;
 import org.telegram.ui.Stories.StoryViewer;
 import org.telegram.ui.Stories.recorder.StoryRecorder;
 import org.teleparanoid.Constants;
+import org.teleparanoid.TeleParanoidConfig;
 import org.teleparanoid.ui.TeleParanoidSettingsActivity;
 import org.webrtc.voiceengine.WebRtcAudioTrack;
 
@@ -375,7 +376,7 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
         getWindow().setBackgroundDrawableResource(R.drawable.transparent);
         // TeleParanoid begin
 //        flagSecureReason = new FlagSecureReason(getWindow(), () -> SharedConfig.passcodeHash.length() > 0 && !SharedConfig.allowScreenCapture);
-        flagSecureReason = new FlagSecureReason(getWindow(), () -> SharedConfig.passcodeHash.length() > 0 && !org.teleparanoid.TeleParanoidConfig.isCaptureScreenAllowed() && !SharedConfig.allowScreenCapture);
+        flagSecureReason = new FlagSecureReason(getWindow(), () -> SharedConfig.passcodeHash.length() > 0 && !TeleParanoidConfig.getInstance(currentAccount).isCaptureScreenAllowed && !SharedConfig.allowScreenCapture);
         // TeleParanoid end
         flagSecureReason.attach();
 
