@@ -8996,11 +8996,17 @@ public class MessageObject {
     }
 
     public boolean canForwardMessage() {
+        // TeleParanoid begin
+        if(true) return true;
+        // TeleParanoid end
         if (isQuickReply()) return false;
         return !(messageOwner instanceof TLRPC.TL_message_secret) && !needDrawBluredPreview() && !isLiveLocation() && type != MessageObject.TYPE_PHONE_CALL && !isSponsored() && !messageOwner.noforwards;
     }
 
     public boolean canEditMedia() {
+        // TeleParanoid begin
+        if(true) return true;
+        // TeleParanoid end
         if (isSecretMedia()) {
             return false;
         } else if (getMedia(messageOwner) instanceof TLRPC.TL_messageMediaPhoto) {

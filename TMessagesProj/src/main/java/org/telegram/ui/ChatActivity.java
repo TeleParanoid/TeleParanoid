@@ -8571,8 +8571,11 @@ public class ChatActivity extends BaseFragment implements NotificationCenter.Not
         selectedMessagesCountTextView.setOnTouchListener((v, event) -> true);
         actionMode.addView(selectedMessagesCountTextView, LayoutHelper.createLinear(0, LayoutHelper.MATCH_PARENT, 1.0f, 65, 0, 0, 0));
 
+        // TeleParanoid begin
+        actionModeViews.add(actionMode.addItemWithWidth(save_to, R.drawable.msg_download, AndroidUtilities.dp(54), LocaleController.getString(R.string.SaveToMusic)));
         if (currentEncryptedChat == null) {
-            actionModeViews.add(actionMode.addItemWithWidth(save_to, R.drawable.msg_download, AndroidUtilities.dp(54), LocaleController.getString(R.string.SaveToMusic)));
+            //actionModeViews.add(actionMode.addItemWithWidth(save_to, R.drawable.msg_download, AndroidUtilities.dp(54), LocaleController.getString(R.string.SaveToMusic)));
+            // TeleParanoid end
             actionModeViews.add(actionMode.addItemWithWidth(edit, R.drawable.msg_edit, AndroidUtilities.dp(54), LocaleController.getString(R.string.Edit)));
             if (getDialogId() == getUserConfig().getClientUserId() && (chatMode == 0 || chatMode == MODE_SAVED)) {
                 actionModeViews.add(actionMode.addItemWithWidth(tag_message, R.drawable.menu_tag_edit, AndroidUtilities.dp(54), LocaleController.getString(R.string.AccDescrTagMessage)));

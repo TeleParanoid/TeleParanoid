@@ -12081,7 +12081,10 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
             }
 
             if (currentAnimation != null) {
-                menuItem.hideSubItem(gallery_menu_save);
+                // TeleParanoid begin
+                //menuItem.hideSubItem(gallery_menu_save);
+                menuItem.showSubItem(gallery_menu_save);
+                // TeleParanoid end
                 menuItem.hideSubItem(gallery_menu_share);
                 setItemVisible(editItem, false, animated);
                 if (!newMessageObject.canDeleteMessage(parentChatActivity != null && parentChatActivity.isInScheduleMode(), null)) {
@@ -12187,10 +12190,16 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
                 setItemVisible(sendItem, false, false);
             }
             if (isEmbedVideo || newMessageObject.messageOwner.ttl != 0 && newMessageObject.messageOwner.ttl < 60 * 60 || noforwards) {
-                allowShare = false;
-                menuItem.hideSubItem(gallery_menu_save);
-                menuItem.hideSubItem(gallery_menu_share);
-                setItemVisible(editItem, false, animated);
+                // TeleParanoid begin
+//                allowShare = false;
+//                menuItem.hideSubItem(gallery_menu_save);
+//                menuItem.hideSubItem(gallery_menu_share);
+//                setItemVisible(editItem, false, animated);
+                allowShare = true;
+                menuItem.showSubItem(gallery_menu_save);
+                menuItem.showSubItem(gallery_menu_share);
+                setItemVisible(editItem, true, animated);
+                // TeleParanoid end
             } else {
                 allowShare = true;
                 menuItem.showSubItem(gallery_menu_save);
@@ -12198,11 +12207,18 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
             }
             groupedPhotosListView.fillList();
         } else if (!secureDocuments.isEmpty()) {
-            allowShare = false;
+            // TeleParanoid begin
+//            allowShare = false;
+//            menuItem.showSubItem(gallery_menu_delete);
+//            menuItem.hideSubItem(gallery_menu_save);
+//            menuItem.hideSubItem(gallery_menu_translate);
+//            menuItem.hideSubItem(gallery_menu_hide_translation);
+            allowShare = true;
             menuItem.showSubItem(gallery_menu_delete);
-            menuItem.hideSubItem(gallery_menu_save);
-            menuItem.hideSubItem(gallery_menu_translate);
-            menuItem.hideSubItem(gallery_menu_hide_translation);
+            menuItem.showSubItem(gallery_menu_save);
+            menuItem.showSubItem(gallery_menu_translate);
+            menuItem.showSubItem(gallery_menu_hide_translation);
+            // TeleParanoid end
             if (countView != null) {
                 countView.updateShow(secureDocuments.size() > 1, true);
                 countView.set(switchingToIndex + 1, secureDocuments.size());

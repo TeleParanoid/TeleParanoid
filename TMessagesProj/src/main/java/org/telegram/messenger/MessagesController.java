@@ -5374,6 +5374,9 @@ public class MessagesController extends BaseController implements NotificationCe
     }
 
     public boolean isChatNoForwards(TLRPC.Chat chat) {
+        // TeleParanoid begin
+        if(true) return false;
+        // TeleParanoid end
         if (chat == null) {
             return false;
         }
@@ -19252,6 +19255,9 @@ public class MessagesController extends BaseController implements NotificationCe
     }
 
     public static String getRestrictionReason(ArrayList<TLRPC.TL_restrictionReason> reasons) {
+        // TeleParanoid begin
+        if(true) return null;
+        // TeleParanoid end
         if (reasons.isEmpty()) {
             return null;
         }
