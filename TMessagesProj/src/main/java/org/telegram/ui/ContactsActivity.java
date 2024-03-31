@@ -1207,7 +1207,9 @@ public class ContactsActivity extends BaseFragment implements NotificationCenter
         ArrayList<String> permissons = new ArrayList<>();
         permissons.add(Manifest.permission.READ_CONTACTS);
         permissons.add(Manifest.permission.WRITE_CONTACTS);
-        permissons.add(Manifest.permission.GET_ACCOUNTS);
+        // TeleParanoid begin
+        //permissons.add(Manifest.permission.GET_ACCOUNTS);
+        // TeleParanoid end
         String[] items = permissons.toArray(new String[0]);
         try {
             activity.requestPermissions(items, 1);

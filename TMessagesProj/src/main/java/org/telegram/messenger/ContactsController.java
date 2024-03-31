@@ -376,6 +376,13 @@ public class ContactsController extends BaseController {
     }
 
     public void checkAppAccount() {
+        // TeleParanoid begin
+        if (getUserConfig().isClientActivated()) {
+            readContacts();
+        }
+        systemAccount = null;
+        if (true) return;
+        // TeleParanoid end
         AccountManager am = AccountManager.get(ApplicationLoader.applicationContext);
         try {
             Account[] accounts = am.getAccountsByType("org.telegram.messenger");
@@ -421,6 +428,9 @@ public class ContactsController extends BaseController {
     }
 
     public void deleteUnknownAppAccounts() {
+        // TeleParanoid begin
+        if (true) return;
+        // TeleParanoid end
         try {
             systemAccount = null;
             AccountManager am = AccountManager.get(ApplicationLoader.applicationContext);
@@ -2006,8 +2016,11 @@ public class ContactsController extends BaseController {
         Cursor cursor = null;
         long time = System.currentTimeMillis();
         try {
-            Account account = systemAccount;
-            if (!hasContactsPermission() || account == null || !hasContactsWritePermission()) {
+            // TeleParanoid begin
+            //Account account = systemAccount;
+            //if (!hasContactsPermission() || account == null || !hasContactsWritePermission()) {
+            if (!hasContactsPermission() || !hasContactsWritePermission()) {
+                // TeleParanoid end
                 return;
             }
             final SharedPreferences settings = MessagesController.getMainSettings(currentAccount);
@@ -2225,7 +2238,10 @@ public class ContactsController extends BaseController {
     }
 
     public long addContactToPhoneBook(TLRPC.User user, boolean check) {
-        if (systemAccount == null || user == null) {
+        // TeleParanoid begin
+        //if (systemAccount == null || user == null) {
+        if (user == null) {
+            // TeleParanoid end
             return -1;
         }
         if (!hasContactsWritePermission()) {
@@ -2238,7 +2254,10 @@ public class ContactsController extends BaseController {
         ContentResolver contentResolver = ApplicationLoader.applicationContext.getContentResolver();
         if (check) {
             try {
-                Uri rawContactUri = ContactsContract.RawContacts.CONTENT_URI.buildUpon().appendQueryParameter(ContactsContract.CALLER_IS_SYNCADAPTER, "true").appendQueryParameter(ContactsContract.RawContacts.ACCOUNT_NAME, systemAccount.name).appendQueryParameter(ContactsContract.RawContacts.ACCOUNT_TYPE, systemAccount.type).build();
+                // TeleParanoid begin
+                //Uri rawContactUri = ContactsContract.RawContacts.CONTENT_URI.buildUpon().appendQueryParameter(ContactsContract.CALLER_IS_SYNCADAPTER, "true").appendQueryParameter(ContactsContract.RawContacts.ACCOUNT_NAME, systemAccount.name).appendQueryParameter(ContactsContract.RawContacts.ACCOUNT_TYPE, systemAccount.type).build();
+                Uri rawContactUri = ContactsContract.RawContacts.CONTENT_URI.buildUpon().appendQueryParameter(ContactsContract.CALLER_IS_SYNCADAPTER, "true").appendQueryParameter(ContactsContract.RawContacts.ACCOUNT_NAME, getSystemAccountName()).appendQueryParameter(ContactsContract.RawContacts.ACCOUNT_TYPE, getSystemAccountType()).build();
+                // TeleParanoid end
                 int value = contentResolver.delete(rawContactUri, ContactsContract.RawContacts.SYNC2 + " = " + user.id, null);
             } catch (Exception ignore) {
 
@@ -2268,8 +2287,12 @@ public class ContactsController extends BaseController {
         }
         int rawContactId = query.size();
         ContentProviderOperation.Builder builder = ContentProviderOperation.newInsert(ContactsContract.RawContacts.CONTENT_URI);
-        builder.withValue(ContactsContract.RawContacts.ACCOUNT_NAME, systemAccount.name);
-        builder.withValue(ContactsContract.RawContacts.ACCOUNT_TYPE, systemAccount.type);
+        // TeleParanoid begin
+//        builder.withValue(ContactsContract.RawContacts.ACCOUNT_NAME, systemAccount.name);
+//        builder.withValue(ContactsContract.RawContacts.ACCOUNT_TYPE, systemAccount.type);
+        builder.withValue(ContactsContract.RawContacts.ACCOUNT_NAME, getSystemAccountName());
+        builder.withValue(ContactsContract.RawContacts.ACCOUNT_TYPE, getSystemAccountType());
+        // TeleParanoid end
         builder.withValue(ContactsContract.RawContacts.SYNC1, TextUtils.isEmpty(user.phone) ? "" : user.phone);
         builder.withValue(ContactsContract.RawContacts.SYNC2, user.id);
         query.add(builder.build());
@@ -2320,7 +2343,10 @@ public class ContactsController extends BaseController {
         }
         try {
             ContentResolver contentResolver = ApplicationLoader.applicationContext.getContentResolver();
-            Uri rawContactUri = ContactsContract.RawContacts.CONTENT_URI.buildUpon().appendQueryParameter(ContactsContract.CALLER_IS_SYNCADAPTER, "true").appendQueryParameter(ContactsContract.RawContacts.ACCOUNT_NAME, systemAccount.name).appendQueryParameter(ContactsContract.RawContacts.ACCOUNT_TYPE, systemAccount.type).build();
+            // TeleParanoid begin
+            //Uri rawContactUri = ContactsContract.RawContacts.CONTENT_URI.buildUpon().appendQueryParameter(ContactsContract.CALLER_IS_SYNCADAPTER, "true").appendQueryParameter(ContactsContract.RawContacts.ACCOUNT_NAME, systemAccount.name).appendQueryParameter(ContactsContract.RawContacts.ACCOUNT_TYPE, systemAccount.type).build();
+            Uri rawContactUri = ContactsContract.RawContacts.CONTENT_URI.buildUpon().appendQueryParameter(ContactsContract.CALLER_IS_SYNCADAPTER, "true").appendQueryParameter(ContactsContract.RawContacts.ACCOUNT_NAME, getSystemAccountName()).appendQueryParameter(ContactsContract.RawContacts.ACCOUNT_TYPE, getSystemAccountType()).build();
+            // TeleParanoid end
             int value = contentResolver.delete(rawContactUri, ContactsContract.RawContacts.SYNC2 + " = " + uid, null);
         } catch (Exception e) {
             FileLog.e(e, false);
@@ -2824,6 +2850,18 @@ public class ContactsController extends BaseController {
         reloadContactsStatuses();
     }
 
+
+    // TeleParanoid begin
+    private String getSystemAccountName() {
+        return Long.valueOf(UserConfig.getInstance(currentAccount).getClientUserId()).toString();
+    }
+
+    private String getSystemAccountType() {
+        return "org.telegram.messenger";
+    }
+    // TeleParanoid end
+
+
     public void createOrUpdateConnectionServiceContact(long id, String firstName, String lastName) {
         if (!hasContactsPermission()) {
             return;
@@ -2838,7 +2876,10 @@ public class ContactsController extends BaseController {
             // 1. Check if we already have the invisible group/label and create it if we don't
             Cursor cursor = resolver.query(groupsURI, new String[]{ContactsContract.Groups._ID},
                     ContactsContract.Groups.TITLE + "=? AND " + ContactsContract.Groups.ACCOUNT_TYPE + "=? AND " + ContactsContract.Groups.ACCOUNT_NAME + "=?",
-                    new String[]{"TelegramConnectionService", systemAccount.type, systemAccount.name}, null);
+                    // TeleParanoid begin
+//                    new String[]{"TelegramConnectionService", systemAccount.type, systemAccount.name}, null);
+                    new String[]{"TelegramConnectionService", getSystemAccountType(), getSystemAccountName()}, null);
+            // TeleParanoid end
             int groupID;
             if (cursor != null && cursor.moveToFirst()) {
                 groupID = cursor.getInt(0);
@@ -2848,8 +2889,12 @@ public class ContactsController extends BaseController {
                         .build());*/
             } else {
                 ContentValues values = new ContentValues();
-                values.put(ContactsContract.Groups.ACCOUNT_TYPE, systemAccount.type);
-                values.put(ContactsContract.Groups.ACCOUNT_NAME, systemAccount.name);
+                // TeleParanoid begin
+//                values.put(ContactsContract.Groups.ACCOUNT_TYPE, systemAccount.type);
+//                values.put(ContactsContract.Groups.ACCOUNT_NAME, systemAccount.name);
+                values.put(ContactsContract.Groups.ACCOUNT_TYPE, getSystemAccountType());
+                values.put(ContactsContract.Groups.ACCOUNT_NAME, getSystemAccountName());
+                // TeleParanoid end
                 values.put(ContactsContract.Groups.GROUP_VISIBLE, 0);
                 values.put(ContactsContract.Groups.GROUP_IS_READ_ONLY, 1);
                 values.put(ContactsContract.Groups.TITLE, "TelegramConnectionService");
@@ -2883,8 +2928,12 @@ public class ContactsController extends BaseController {
                         .build());
             } else {
                 ops.add(ContentProviderOperation.newInsert(rawContactsURI)
-                        .withValue(ContactsContract.RawContacts.ACCOUNT_TYPE, systemAccount.type)
-                        .withValue(ContactsContract.RawContacts.ACCOUNT_NAME, systemAccount.name)
+                        // TeleParanoid begin
+//                        .withValue(ContactsContract.RawContacts.ACCOUNT_TYPE, systemAccount.type)
+//                        .withValue(ContactsContract.RawContacts.ACCOUNT_NAME, systemAccount.name)
+                        .withValue(ContactsContract.RawContacts.ACCOUNT_TYPE, getSystemAccountType())
+                        .withValue(ContactsContract.RawContacts.ACCOUNT_NAME, getSystemAccountName())
+                        // TeleParanoid end
                         .withValue(ContactsContract.RawContacts.RAW_CONTACT_IS_READ_ONLY, 1)
                         .withValue(ContactsContract.RawContacts.AGGREGATION_MODE, ContactsContract.RawContacts.AGGREGATION_MODE_DISABLED)
                         .build());
@@ -2924,7 +2973,10 @@ public class ContactsController extends BaseController {
 
             Cursor cursor = resolver.query(ContactsContract.Groups.CONTENT_URI, new String[]{ContactsContract.Groups._ID},
                     ContactsContract.Groups.TITLE + "=? AND " + ContactsContract.Groups.ACCOUNT_TYPE + "=? AND " + ContactsContract.Groups.ACCOUNT_NAME + "=?",
-                    new String[]{"TelegramConnectionService", systemAccount.type, systemAccount.name}, null);
+                    // TeleParanoid begin
+                    //new String[]{"TelegramConnectionService", systemAccount.type, systemAccount.name}, null);
+                    new String[]{"TelegramConnectionService", getSystemAccountType(), getSystemAccountName()}, null);
+                    // TeleParanoid end
             int groupID;
             if (cursor != null && cursor.moveToFirst()) {
                 groupID = cursor.getInt(0);

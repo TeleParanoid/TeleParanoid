@@ -10054,7 +10054,9 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
             }
             permissons.add(Manifest.permission.READ_CONTACTS);
             permissons.add(Manifest.permission.WRITE_CONTACTS);
-            permissons.add(Manifest.permission.GET_ACCOUNTS);
+            // TeleParanoid begin
+            //permissons.add(Manifest.permission.GET_ACCOUNTS);
+            // TeleParanoid end
         }
         if (Build.VERSION.SDK_INT >= 33) {
             if (activity.checkSelfPermission(Manifest.permission.READ_MEDIA_IMAGES) != PackageManager.PERMISSION_GRANTED) {
