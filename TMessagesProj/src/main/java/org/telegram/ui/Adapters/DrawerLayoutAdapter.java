@@ -33,7 +33,7 @@ import org.telegram.ui.Cells.DrawerUserCell;
 import org.telegram.ui.Cells.EmptyCell;
 import org.telegram.ui.Components.RecyclerListView;
 import org.telegram.ui.Components.SideMenultItemAnimator;
-import org.teleparanoid.Constants;
+import org.teleparanoid.TeleParanoidConstants;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -353,7 +353,7 @@ public class DrawerLayoutAdapter extends RecyclerListView.SelectionAdapter {
         items.add(new Item(11, LocaleController.getString("SavedMessages", R.string.SavedMessages), savedIcon));
         items.add(new Item(8, LocaleController.getString("Settings", R.string.Settings), settingsIcon));
         // TeleParanoid begin
-        items.add(new Item(Constants.ParanoidMenuSettingsId, LocaleController.getString("TeleParanoidSettings", R.string.TeleParanoidSettings), settingsIcon));
+        items.add(new Item(TeleParanoidConstants.PARANOID_MENU_SETTINGS_ID, LocaleController.getString("TeleParanoidSettings", R.string.TeleParanoidSettings), settingsIcon));
         // TeleParanoid end
         items.add(null); // divider
         items.add(new Item(7, LocaleController.getString("InviteFriends", R.string.InviteFriends), inviteIcon));

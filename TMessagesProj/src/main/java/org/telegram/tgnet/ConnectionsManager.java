@@ -9,10 +9,7 @@ import android.os.Build;
 import android.os.SystemClock;
 import android.text.TextUtils;
 import android.util.Base64;
-import android.util.LongSparseArray;
-import android.util.SparseIntArray;
 
-import com.google.android.exoplayer2.util.Log;
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig;
 
 import org.json.JSONArray;
@@ -32,9 +29,9 @@ import org.telegram.messenger.PushListenerController;
 import org.telegram.messenger.SharedConfig;
 import org.telegram.messenger.StatsController;
 import org.telegram.messenger.UserConfig;
-import org.telegram.messenger.UserObject;
 import org.telegram.messenger.Utilities;
 import org.teleparanoid.TeleParanoidConfig;
+import org.teleparanoid.utils.TeleParanoidUtils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -173,7 +170,7 @@ public class ConnectionsManager extends BaseController {
     private static HashMap<String, ResolvedDomain> dnsCache = new HashMap<>();
 
     private static int lastClassGuid = 1;
-    
+
     private static final ConnectionsManager[] Instance = new ConnectionsManager[UserConfig.MAX_ACCOUNT_COUNT];
     public static ConnectionsManager getInstance(int num) {
         ConnectionsManager localInstance = Instance[num];
@@ -335,11 +332,102 @@ public class ConnectionsManager extends BaseController {
         return requestToken;
     }
 
-    private void sendRequestInternal(TLObject object, RequestDelegate onComplete, RequestDelegateTimestamp onCompleteTimestamp, QuickAckDelegate onQuickAck, WriteToSocketDelegate onWriteToSocket, int flags, int datacenterId, int connectionType, boolean immediate, int requestToken) {
+    // TeleParanoid begin
+
+    //    private void sendRequestInternal(TLObject object, RequestDelegate onComplete, RequestDelegateTimestamp onCompleteTimestamp, QuickAckDelegate onQuickAck, WriteToSocketDelegate onWriteToSocket, int flags, int datacenterId, int connectionType, boolean immediate, int requestToken) {
+    private void sendRequestInternal(TLObject object, RequestDelegate onCompleteOrig, RequestDelegateTimestamp onCompleteTimestamp, QuickAckDelegate onQuickAck, WriteToSocketDelegate onWriteToSocket, int flags, int datacenterId, int connectionType, boolean immediate, int requestToken) {
+        // TeleParanoid end
         if (BuildVars.LOGS_ENABLED) {
             FileLog.d("send request " + object + " with token = " + requestToken);
         }
         try {
+
+            // TeleParanoid begin
+            // don't send typing and uploading status
+            TeleParanoidConfig tpc = getTeleParanoidConfig();
+            if (tpc.shouldIgnoreSendTypingPackets &&
+                    (
+                        object instanceof TLRPC.TL_messages_setTyping
+                        || object instanceof TLRPC.TL_messages_setEncryptedTyping
+                    )
+            ) {
+                // no need to run `onComplete`
+                return;
+            }
+
+            // don't send online status
+            if (tpc.shouldSetOfflineInUpdatePackets && object instanceof TLRPC.TL_account_updateStatus) {
+                TLRPC.TL_account_updateStatus obj = ((TLRPC.TL_account_updateStatus) object);
+                obj.offline = true;
+            }
+
+            // don't send read status
+            if (tpc.shouldIgnoreReadPackets &&
+                    (
+                        object instanceof TLRPC.TL_messages_readEncryptedHistory
+                        || object instanceof TLRPC.TL_messages_readHistory
+                        || object instanceof TLRPC.TL_messages_readDiscussion
+                        || object instanceof TLRPC.TL_messages_readMessageContents
+                        || object instanceof TLRPC.TL_channels_readHistory
+                        || object instanceof TLRPC.TL_channels_readMessageContents
+                    )
+            ) {
+                if (!tpc.shouldSendReadPacket()) {
+
+                    TLRPC.TL_messages_affectedMessages fakeRes = new TLRPC.TL_messages_affectedMessages();
+                    // idk if this should be -1 or what, check `TL_messages_readMessageContents` usages
+                    fakeRes.pts = -1;
+                    fakeRes.pts_count = 0;
+
+                    try {
+                        if (onCompleteOrig != null) {
+                            onCompleteOrig.run(fakeRes, null);
+                        }
+                    } catch (Exception e) {
+                        FileLog.e(e);
+                    }
+
+                    return;
+                }
+            }
+
+            // mark messages as read after sending a message
+            if (tpc.shouldMarkReadAfterSend && tpc.shouldIgnoreReadPackets) {
+                TLRPC.InputPeer peer = null;
+                if (object instanceof TLRPC.TL_messages_sendMessage) {
+                    TLRPC.TL_messages_sendMessage obj = ((TLRPC.TL_messages_sendMessage) object);
+                    peer = obj.peer;
+                } else if (object instanceof TLRPC.TL_messages_sendMedia) {
+                    TLRPC.TL_messages_sendMedia obj = ((TLRPC.TL_messages_sendMedia) object);
+                    peer = obj.peer;
+                } else if (object instanceof TLRPC.TL_messages_sendMultiMedia) {
+                    TLRPC.TL_messages_sendMultiMedia obj = ((TLRPC.TL_messages_sendMultiMedia) object);
+                    peer = obj.peer;
+                }
+
+                if (peer != null) {
+                    Long dialogId = TeleParanoidUtils.getDialogId(peer);
+
+                    RequestDelegate origOnComplete = onCompleteOrig;
+                    TLRPC.InputPeer finalPeer = peer;
+                    onCompleteOrig = (response, error) -> {
+                        origOnComplete.run(response, error);
+
+                        getMessagesStorage().getDialogMaxMessageId(dialogId, maxId -> {
+                            TLRPC.TL_messages_readHistory request = new TLRPC.TL_messages_readHistory();
+                            request.peer = finalPeer;
+                            request.max_id = maxId;
+
+                            tpc.setAllowReadPacket(true, 1);
+                            sendRequest(request, (a1, a2) -> {});
+                        });
+                    };
+                }
+            }
+
+            final RequestDelegate onComplete = onCompleteOrig;
+            // TeleParanoid end
+
             NativeByteBuffer buffer = new NativeByteBuffer(object.getObjectSize());
             object.serializeToStream(buffer);
             object.freeResources();

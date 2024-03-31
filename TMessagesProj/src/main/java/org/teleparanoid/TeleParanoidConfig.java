@@ -17,7 +17,13 @@ import java.security.GeneralSecurityException;
 public class TeleParanoidConfig extends BaseController {
 
     public boolean isCaptureScreenAllowed;
+    public boolean shouldIgnoreReadPackets;
+    public boolean shouldSetOfflineInUpdatePackets;
+    public boolean shouldIgnoreSendTypingPackets;
+    public boolean shouldMarkReadAfterSend;
 
+    private boolean allowReadPacket;
+    private int readHistoryCountToResetAllowReadPacket;
 
     private static volatile TeleParanoidConfig Instance;
     private final Object sync = new Object();
@@ -26,6 +32,7 @@ public class TeleParanoidConfig extends BaseController {
     public TeleParanoidConfig(int num) {
         super(num);
     }
+
     public static TeleParanoidConfig getInstance(int num) {
         TeleParanoidConfig localInstance = Instance;
 
@@ -54,6 +61,10 @@ public class TeleParanoidConfig extends BaseController {
                     SharedPreferences.Editor editor = sharedPreferences.edit();
 
                     editor.putBoolean("isCaptureScreenAllowed", isCaptureScreenAllowed);
+                    editor.putBoolean("shouldIgnoreReadPackets", shouldIgnoreReadPackets);
+                    editor.putBoolean("shouldSetOfflineInUpdatePackets", shouldSetOfflineInUpdatePackets);
+                    editor.putBoolean("shouldIgnoreSendTypingPackets", shouldIgnoreSendTypingPackets);
+                    editor.putBoolean("shouldMarkReadAfterSend", shouldMarkReadAfterSend);
 
 
                     editor.apply();
@@ -74,11 +85,41 @@ public class TeleParanoidConfig extends BaseController {
                 SharedPreferences sharedPreferences = SecureSharedPrefs.getSharedPreferences(ApplicationLoader.applicationContext);
 
                 isCaptureScreenAllowed = sharedPreferences.getBoolean("isCaptureScreenAllowed", false);
+                shouldIgnoreSendTypingPackets = sharedPreferences.getBoolean("shouldIgnoreSendTypingPackets", false);
+                shouldIgnoreReadPackets = sharedPreferences.getBoolean("shouldIgnoreReadPackets", false);
+                shouldSetOfflineInUpdatePackets = sharedPreferences.getBoolean("shouldSetOfflineInUpdatePackets", false);
+                shouldMarkReadAfterSend = sharedPreferences.getBoolean("shouldMarkReadAfterSend", false);
 
                 configLoaded = true;
             } catch (Throwable e) {
                 FileLog.e(e);
             }
+        }
+    }
+
+
+    public void setAllowReadPacket(boolean val, int resetAfter) {
+        allowReadPacket = val;
+        readHistoryCountToResetAllowReadPacket = resetAfter;
+    }
+
+    public boolean shouldSendReadPacket() {
+        if(!shouldIgnoreReadPackets)
+            return true;
+
+        synchronized (sync) {
+            if (readHistoryCountToResetAllowReadPacket == -1) {
+                return allowReadPacket;
+            }
+
+            readHistoryCountToResetAllowReadPacket -= 1;
+            boolean currentVal = allowReadPacket;
+
+            if (readHistoryCountToResetAllowReadPacket == 0) {
+                allowReadPacket = false;
+            }
+
+            return currentVal;
         }
     }
 
@@ -170,4 +211,3 @@ public class TeleParanoidConfig extends BaseController {
         editor.apply();
     }
 }
-

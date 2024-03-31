@@ -234,7 +234,9 @@ import org.telegram.ui.Stories.recorder.HintView2;
 import org.telegram.ui.Stories.recorder.PreviewView;
 import org.telegram.ui.Stories.recorder.StoryEntry;
 import org.telegram.ui.Stories.recorder.StoryRecorder;
+import org.teleparanoid.TeleParanoidConstants;
 import org.teleparanoid.TeleParanoidConfig;
+import org.teleparanoid.utils.TeleParanoidUtils;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -26896,6 +26898,19 @@ public class ChatActivity extends BaseFragment implements NotificationCenter.Not
                 }
             }
 
+            // TeleParanoid begin
+            TeleParanoidConfig tpc = TeleParanoidConfig.getInstance(currentAccount);
+            if (tpc.shouldIgnoreReadPackets /* && !isDeleted */
+                    && message != null
+                    && message.messageOwner.from_id != null
+                    && message.messageOwner.from_id.user_id != getAccountInstance().getUserConfig().getClientUserId()
+            ) {
+                items.add(LocaleController.getString("ReadUntilMenuText", R.string.ReadUntilMsgOption));
+                options.add(TeleParanoidConstants.MSG_OPTION_READ_UNTIL_ID);
+                icons.add(R.drawable.msg_view_file);
+            }
+            // TeleParanoid end
+
             if (options.isEmpty() && optionsView == null) {
                 return false;
             }
@@ -28589,6 +28604,11 @@ public class ChatActivity extends BaseFragment implements NotificationCenter.Not
         }
         boolean preserveDim = false;
         switch (option) {
+            // TeleParanoid begin
+            case TeleParanoidConstants.MSG_OPTION_READ_UNTIL_ID:
+                TeleParanoidUtils.markReadOnServer(currentAccount, selectedObject.messageOwner.id, getMessagesController().getInputPeer(selectedObject.messageOwner.peer_id));
+                break;
+            // TeleParanoid end
             case OPTION_RETRY: {
                 if (selectedObjectGroup != null) {
                     boolean success = true;

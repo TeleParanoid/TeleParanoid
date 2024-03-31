@@ -1,11 +1,3 @@
-/*
- * This is the source code of Telegram for Android v. 5.x.x.
- * It is licensed under GNU GPL v. 2 or later.
- * You should have received a copy of the license in this archive (see LICENSE).
- *
- * Copyright Nikolai Kudashov, 2013-2018.
- */
-
 package org.teleparanoid.ui;
 
 import android.content.Context;
@@ -28,8 +20,6 @@ import org.telegram.ui.ActionBar.BaseFragment;
 import org.telegram.ui.ActionBar.Theme;
 import org.telegram.ui.ActionBar.ThemeDescription;
 import org.telegram.ui.Cells.HeaderCell;
-import org.telegram.ui.Cells.ShadowSectionCell;
-import org.telegram.ui.Cells.TextCell;
 import org.telegram.ui.Cells.TextCheckCell;
 import org.telegram.ui.Cells.TextInfoPrivacyCell;
 import org.telegram.ui.Cells.TextSettingsCell;
@@ -40,9 +30,6 @@ import org.teleparanoid.TeleParanoidConfig;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
-
-import kotlin.NotImplementedError;
-
 
 public class TeleParanoidSettingsActivity extends BaseFragment implements NotificationCenter.NotificationCenterDelegate {
 
@@ -57,6 +44,10 @@ public class TeleParanoidSettingsActivity extends BaseFragment implements Notifi
 
     private int secretMapRow;
     private int allowCaptureScreenRow;
+    private int sendReadPacketsRow;
+    private int sendOnlinePacketsRow;
+    private int sendUploadProgressRow;
+    private int markReadAfterSendRow;
     private int buildInfoRow;
     private int rowCount;
     private boolean secretMapUpdate;
@@ -128,6 +119,62 @@ public class TeleParanoidSettingsActivity extends BaseFragment implements Notifi
                 catch (Throwable e){
                     FileLog.e(e);
                 }
+            } else if (position == sendReadPacketsRow) {
+
+                TextCheckCell textCheckCell = ((TextCheckCell) view);
+                final boolean isChecked = textCheckCell.getCheckBox().isChecked();
+
+                try {
+                    TeleParanoidConfig tpConfig = TeleParanoidConfig.getInstance(currentAccount);
+                    tpConfig.shouldIgnoreReadPackets = !isChecked;
+                    tpConfig.saveConfig();
+                    textCheckCell.setChecked(!isChecked);
+                }
+                catch (Throwable e){
+                    FileLog.e(e);
+                }
+            } else if (position == sendOnlinePacketsRow) {
+
+                TextCheckCell textCheckCell = ((TextCheckCell) view);
+                final boolean isChecked = textCheckCell.getCheckBox().isChecked();
+
+                try {
+                    TeleParanoidConfig tpConfig = TeleParanoidConfig.getInstance(currentAccount);
+                    tpConfig.shouldSetOfflineInUpdatePackets = !isChecked;
+                    tpConfig.saveConfig();
+                    textCheckCell.setChecked(!isChecked);
+                }
+                catch (Throwable e){
+                    FileLog.e(e);
+                }
+            } else if (position == sendUploadProgressRow) {
+
+                TextCheckCell textCheckCell = ((TextCheckCell) view);
+                final boolean isChecked = textCheckCell.getCheckBox().isChecked();
+
+                try {
+                    TeleParanoidConfig tpConfig = TeleParanoidConfig.getInstance(currentAccount);
+                    tpConfig.shouldIgnoreSendTypingPackets = !isChecked;
+                    tpConfig.saveConfig();
+                    textCheckCell.setChecked(!isChecked);
+                }
+                catch (Throwable e){
+                    FileLog.e(e);
+                }
+            } else if (position == markReadAfterSendRow) {
+
+                TextCheckCell textCheckCell = ((TextCheckCell) view);
+                final boolean isChecked = textCheckCell.getCheckBox().isChecked();
+
+                try {
+                    TeleParanoidConfig tpConfig = TeleParanoidConfig.getInstance(currentAccount);
+                    tpConfig.shouldMarkReadAfterSend = !isChecked;
+                    tpConfig.saveConfig();
+                    textCheckCell.setChecked(!isChecked);
+                }
+                catch (Throwable e){
+                    FileLog.e(e);
+                }
             } else if (position == secretMapRow) {
 //                AlertsCreator.showSecretLocationAlert(getParentActivity(), currentAccount, () -> {
 //                    listAdapter.notifyDataSetChanged();
@@ -154,6 +201,10 @@ public class TeleParanoidSettingsActivity extends BaseFragment implements Notifi
         securitySectionRow = rowCount++;
         obtainingApiIdRow = rowCount++;
         allowCaptureScreenRow = rowCount++;
+        sendReadPacketsRow = rowCount++;
+        sendOnlinePacketsRow = rowCount++;
+        sendUploadProgressRow = rowCount++;
+        markReadAfterSendRow = rowCount++;
 
         secretMapRow = rowCount++;
         buildInfoRow = rowCount++;
@@ -201,6 +252,10 @@ public class TeleParanoidSettingsActivity extends BaseFragment implements Notifi
             int position = holder.getAdapterPosition();
             return position == allowCaptureScreenRow
                     || position == secretMapRow
+                    || position == sendReadPacketsRow
+                    || position == sendOnlinePacketsRow
+                    || position == sendUploadProgressRow
+                    || position == markReadAfterSendRow
                     || position == obtainingApiIdRow;
         }
 
@@ -285,9 +340,28 @@ public class TeleParanoidSettingsActivity extends BaseFragment implements Notifi
                     if (position == allowCaptureScreenRow) {
 
                         TeleParanoidConfig tpConfig = TeleParanoidConfig.getInstance(currentAccount);
-                        final boolean isCaptureScreenAllowed = tpConfig.isCaptureScreenAllowed;
 
-                        textCheckCell.setTextAndCheck(LocaleController.getString(R.string.AllowCaptureScreen), isCaptureScreenAllowed, false);
+                        textCheckCell.setTextAndCheck(LocaleController.getString(R.string.AllowCaptureScreen), tpConfig.isCaptureScreenAllowed, false);
+                    } else if (position == sendReadPacketsRow) {
+
+                        TeleParanoidConfig tpConfig = TeleParanoidConfig.getInstance(currentAccount);
+
+                        textCheckCell.setTextAndCheck(LocaleController.getString(R.string.IgnoreReadPackets), tpConfig.shouldIgnoreReadPackets, false);
+                    } else if (position == sendOnlinePacketsRow) {
+
+                        TeleParanoidConfig tpConfig = TeleParanoidConfig.getInstance(currentAccount);
+
+                        textCheckCell.setTextAndCheck(LocaleController.getString(R.string.SetOfflineInUpdate), tpConfig.shouldSetOfflineInUpdatePackets, false);
+                    } else if (position == sendUploadProgressRow) {
+
+                        TeleParanoidConfig tpConfig = TeleParanoidConfig.getInstance(currentAccount);
+
+                        textCheckCell.setTextAndCheck(LocaleController.getString(R.string.IgnoreSendTypingPackets), tpConfig.shouldIgnoreSendTypingPackets, false);
+                    } else if (position == markReadAfterSendRow) {
+
+                        TeleParanoidConfig tpConfig = TeleParanoidConfig.getInstance(currentAccount);
+
+                        textCheckCell.setTextAndCheck(LocaleController.getString(R.string.SendReadAfterReply), tpConfig.shouldMarkReadAfterSend, false);
                     }
                     break;
             }
@@ -301,7 +375,12 @@ public class TeleParanoidSettingsActivity extends BaseFragment implements Notifi
                 return TEXT_INFO_PRIVACY_CELL;
             } else if (position == securitySectionRow) {
                 return HEADER_CELL;
-            } else if (position == allowCaptureScreenRow) {
+            } else if (position == allowCaptureScreenRow
+                    || position == sendReadPacketsRow
+                    || position == sendOnlinePacketsRow
+                    || position == sendUploadProgressRow
+                    || position == markReadAfterSendRow
+            ) {
                 return TEXT_CHECK_CELL;
             }
 

@@ -8452,5 +8452,10 @@
     <string name="ApiId">api_id</string>
     <string name="IdCopied">ID copied</string>
     <string name="AllowCaptureScreen">Allow capture screen everywhere</string>
+    <string name="IgnoreReadPackets">Do not send read status</string>
+    <string name="SetOfflineInUpdate">Send offline in update status</string>
+    <string name="IgnoreSendTypingPackets">Do not send typing and uploading status</string>
+    <string name="SendReadAfterReply">Mark as read after reply</string>
+    <string name="ReadUntilMsgOption">Read until</string>
     <!-- TeleParanoid end-->
 </resources>

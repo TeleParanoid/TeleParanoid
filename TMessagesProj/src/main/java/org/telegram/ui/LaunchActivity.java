@@ -188,7 +188,7 @@ import org.telegram.ui.Stories.StoriesController;
 import org.telegram.ui.Stories.StoriesListPlaceProvider;
 import org.telegram.ui.Stories.StoryViewer;
 import org.telegram.ui.Stories.recorder.StoryRecorder;
-import org.teleparanoid.Constants;
+import org.teleparanoid.TeleParanoidConstants;
 import org.teleparanoid.TeleParanoidConfig;
 import org.teleparanoid.ui.TeleParanoidSettingsActivity;
 import org.webrtc.voiceengine.WebRtcAudioTrack;
@@ -653,7 +653,7 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
                     args.putInt("type", MediaActivity.TYPE_STORIES);
                     drawerLayoutContainer.closeDrawer(true);
                     presentFragment(new MediaActivity(args, null));
-                } else if (id == Constants.ParanoidMenuSettingsId) {
+                } else if (id == TeleParanoidConstants.PARANOID_MENU_SETTINGS_ID) {
                     presentFragment(new TeleParanoidSettingsActivity());
                     drawerLayoutContainer.closeDrawer(false);
                 }
