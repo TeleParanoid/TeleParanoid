@@ -48,6 +48,8 @@ public class TeleParanoidSettingsActivity extends BaseFragment implements Notifi
     private int sendOnlinePacketsRow;
     private int sendUploadProgressRow;
     private int markReadAfterSendRow;
+    private int shouldHideChatJoiningMessagesRow;
+    private int shouldHideRecommendationsCellRow;
     private int buildInfoRow;
     private int rowCount;
     private boolean secretMapUpdate;
@@ -175,6 +177,34 @@ public class TeleParanoidSettingsActivity extends BaseFragment implements Notifi
                 catch (Throwable e){
                     FileLog.e(e);
                 }
+            } else if (position == shouldHideChatJoiningMessagesRow) {
+
+                TextCheckCell textCheckCell = ((TextCheckCell) view);
+                final boolean isChecked = textCheckCell.getCheckBox().isChecked();
+
+                try {
+                    TeleParanoidConfig tpConfig = TeleParanoidConfig.getInstance(currentAccount);
+                    tpConfig.shouldHideChatJoiningMessages = !isChecked;
+                    tpConfig.saveConfig();
+                    textCheckCell.setChecked(!isChecked);
+                }
+                catch (Throwable e){
+                    FileLog.e(e);
+                }
+            } else if (position == shouldHideRecommendationsCellRow) {
+
+                TextCheckCell textCheckCell = ((TextCheckCell) view);
+                final boolean isChecked = textCheckCell.getCheckBox().isChecked();
+
+                try {
+                    TeleParanoidConfig tpConfig = TeleParanoidConfig.getInstance(currentAccount);
+                    tpConfig.shouldHideRecommendationsCell = !isChecked;
+                    tpConfig.saveConfig();
+                    textCheckCell.setChecked(!isChecked);
+                }
+                catch (Throwable e){
+                    FileLog.e(e);
+                }
             } else if (position == secretMapRow) {
 //                AlertsCreator.showSecretLocationAlert(getParentActivity(), currentAccount, () -> {
 //                    listAdapter.notifyDataSetChanged();
@@ -205,6 +235,8 @@ public class TeleParanoidSettingsActivity extends BaseFragment implements Notifi
         sendOnlinePacketsRow = rowCount++;
         sendUploadProgressRow = rowCount++;
         markReadAfterSendRow = rowCount++;
+        shouldHideChatJoiningMessagesRow = rowCount++;
+        shouldHideRecommendationsCellRow = rowCount++;
 
         secretMapRow = rowCount++;
         buildInfoRow = rowCount++;
@@ -256,6 +288,8 @@ public class TeleParanoidSettingsActivity extends BaseFragment implements Notifi
                     || position == sendOnlinePacketsRow
                     || position == sendUploadProgressRow
                     || position == markReadAfterSendRow
+                    || position == shouldHideChatJoiningMessagesRow
+                    || position == shouldHideRecommendationsCellRow
                     || position == obtainingApiIdRow;
         }
 
@@ -361,7 +395,17 @@ public class TeleParanoidSettingsActivity extends BaseFragment implements Notifi
 
                         TeleParanoidConfig tpConfig = TeleParanoidConfig.getInstance(currentAccount);
 
-                        textCheckCell.setTextAndCheck(LocaleController.getString(R.string.SendReadAfterReply), tpConfig.shouldMarkReadAfterSend, false);
+                        textCheckCell.setTextAndCheck(LocaleController.getString(R.string.SendReadAfterReply), tpConfig.shouldMarkReadAfterSend, true);
+                    } else if (position == shouldHideChatJoiningMessagesRow) {
+
+                        TeleParanoidConfig tpConfig = TeleParanoidConfig.getInstance(currentAccount);
+
+                        textCheckCell.setTextAndCheck(LocaleController.getString(R.string.ShouldHideChatJoiningMessages), tpConfig.shouldHideChatJoiningMessages, false);
+                    }else if (position == shouldHideRecommendationsCellRow) {
+
+                        TeleParanoidConfig tpConfig = TeleParanoidConfig.getInstance(currentAccount);
+
+                        textCheckCell.setTextAndCheck(LocaleController.getString(R.string.ShouldHideRecommendationsCell), tpConfig.shouldHideRecommendationsCell, false);
                     }
                     break;
             }
@@ -380,6 +424,8 @@ public class TeleParanoidSettingsActivity extends BaseFragment implements Notifi
                     || position == sendOnlinePacketsRow
                     || position == sendUploadProgressRow
                     || position == markReadAfterSendRow
+                    || position == shouldHideChatJoiningMessagesRow
+                    || position == shouldHideRecommendationsCellRow
             ) {
                 return TEXT_CHECK_CELL;
             }

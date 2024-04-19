@@ -58,6 +58,7 @@ import org.telegram.ui.Components.LoadingDrawable;
 import org.telegram.ui.Components.Scroller;
 import org.telegram.ui.Components.StaticLayoutEx;
 import org.telegram.ui.Components.Text;
+import org.teleparanoid.TeleParanoidConfig;
 
 import java.util.ArrayList;
 
@@ -118,6 +119,7 @@ public class ChannelRecommendationsCell {
         serviceTextPaint.setTextSize(dp(14));
         serviceTextPaint.setColor(cell.getThemedColor(Theme.key_chat_serviceText));
         serviceText = new StaticLayout(getString(R.string.ChannelJoined), serviceTextPaint, msg.getMaxMessageTextWidth(), Layout.Alignment.ALIGN_CENTER, 1f, 0f, false);
+        TeleParanoidConfig tpc = TeleParanoidConfig.getInstance(currentAccount);
         serviceTextLeft = serviceText.getWidth();
         serviceTextRight = 0;
         for (int i = 0; i < serviceText.getLineCount(); ++i) {

@@ -8457,5 +8457,7 @@
     <string name="IgnoreSendTypingPackets">Do not send typing and uploading status</string>
     <string name="SendReadAfterReply">Mark as read after reply</string>
     <string name="ReadUntilMsgOption">Read until</string>
+    <string name="ShouldHideChatJoiningMessages">Should hide your joining messages</string>
+    <string name="ShouldHideRecommendationsCell">Should hide recommendations cell</string>
     <!-- TeleParanoid end-->
 </resources>

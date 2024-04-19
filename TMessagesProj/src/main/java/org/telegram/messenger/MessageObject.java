@@ -72,6 +72,7 @@ import org.telegram.ui.Components.URLSpanReplacement;
 import org.telegram.ui.Components.URLSpanUserMention;
 import org.telegram.ui.Components.spoilers.SpoilerEffect;
 import org.telegram.ui.PeerColorActivity;
+import org.teleparanoid.TeleParanoidConfig;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -3987,6 +3988,11 @@ public class MessageObject {
                         }
                     }
                 } else if (messageOwner.action instanceof TLRPC.TL_messageActionChatAddUser) {
+
+                    // TeleParanoid begin
+                    TeleParanoidConfig tpc = TeleParanoidConfig.getInstance(currentAccount);
+                    // TeleParanoid begin
+
                     long singleUserId = messageOwner.action.user_id;
                     if (singleUserId == 0 && messageOwner.action.users.size() == 1) {
                         singleUserId = messageOwner.action.users.get(0);
@@ -4000,16 +4006,24 @@ public class MessageObject {
                         if (messageOwner.from_id != null && singleUserId == messageOwner.from_id.user_id) {
                             if (ChatObject.isChannel(chat) && !chat.megagroup) {
                                 channelJoined = true;
-                                messageText = LocaleController.getString("ChannelJoined", R.string.ChannelJoined);
+                                // TeleParanoid begin
+                                messageText = tpc.shouldHideChatJoiningMessages ? "" : LocaleController.getString("ChannelJoined", R.string.ChannelJoined);
+                                // TeleParanoid end
                             } else {
                                 if (messageOwner.peer_id.channel_id != 0) {
                                     if (singleUserId == UserConfig.getInstance(currentAccount).getClientUserId()) {
-                                        messageText = LocaleController.getString("ChannelMegaJoined", R.string.ChannelMegaJoined);
+                                        // TeleParanoid begin
+                                        messageText = tpc.shouldHideChatJoiningMessages ? "" : LocaleController.getString("ChannelMegaJoined", R.string.ChannelMegaJoined);
+                                        // TeleParanoid end
                                     } else {
-                                        messageText = replaceWithLink(LocaleController.getString("ActionAddUserSelfMega", R.string.ActionAddUserSelfMega), "un1", fromObject);
+                                        // TeleParanoid begin
+                                        messageText = tpc.shouldHideChatJoiningMessages ? "" : replaceWithLink(LocaleController.getString("ActionAddUserSelfMega", R.string.ActionAddUserSelfMega), "un1", fromObject);
+                                        // TeleParanoid end
                                     }
                                 } else if (isOut()) {
-                                    messageText = LocaleController.getString("ActionAddUserSelfYou", R.string.ActionAddUserSelfYou);
+                                    // TeleParanoid begin
+                                    messageText = tpc.shouldHideChatJoiningMessages ? "" : LocaleController.getString("ActionAddUserSelfYou", R.string.ActionAddUserSelfYou);
+                                    // TeleParanoid end
                                 } else {
                                     messageText = replaceWithLink(LocaleController.getString("ActionAddUserSelf", R.string.ActionAddUserSelf), "un1", fromObject);
                                 }
@@ -4046,6 +4060,13 @@ public class MessageObject {
                     } else {
                         messageText = replaceWithLink(LocaleController.getString("ActionInviteUser", R.string.ActionInviteUser), "un1", fromObject);
                     }
+
+                    // TeleParanoid begin
+                    TeleParanoidConfig tpc = TeleParanoidConfig.getInstance(currentAccount);
+                    if(tpc.shouldHideChatJoiningMessages){
+                        messageText = "";
+                    }
+                    // TeleParanoid begin
                 } else if (messageOwner.action instanceof TLRPC.TL_messageActionGiveawayLaunch) {
                     TLRPC.Chat chat = messageOwner.peer_id != null && messageOwner.peer_id.channel_id != 0 ? getChat(chats, sChats, messageOwner.peer_id.channel_id) : null;
                     boolean isChannel = ChatObject.isChannelAndNotMegaGroup(chat);
@@ -4586,6 +4607,13 @@ public class MessageObject {
                     } else {
                         messageText = replaceWithLink(LocaleController.getString("UserAcceptedToGroupAction", R.string.UserAcceptedToGroupAction), "un1", fromObject);
                     }
+
+                    // TeleParanoid begin
+                    TeleParanoidConfig tpc = TeleParanoidConfig.getInstance(currentAccount);
+                    if(tpc.shouldHideChatJoiningMessages){
+                        messageText = "";
+                    }
+                    // TeleParanoid begin
                 }
             }
         } else {
