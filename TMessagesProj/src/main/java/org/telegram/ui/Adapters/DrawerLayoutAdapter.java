@@ -33,6 +33,7 @@ import org.telegram.ui.Cells.DrawerUserCell;
 import org.telegram.ui.Cells.EmptyCell;
 import org.telegram.ui.Components.RecyclerListView;
 import org.telegram.ui.Components.SideMenultItemAnimator;
+import org.teleparanoid.TeleParanoidConfig;
 import org.teleparanoid.TeleParanoidConstants;
 
 import java.util.ArrayList;
@@ -353,7 +354,11 @@ public class DrawerLayoutAdapter extends RecyclerListView.SelectionAdapter {
         items.add(new Item(11, LocaleController.getString("SavedMessages", R.string.SavedMessages), savedIcon));
         items.add(new Item(8, LocaleController.getString("Settings", R.string.Settings), settingsIcon));
         // TeleParanoid begin
-        items.add(new Item(TeleParanoidConstants.PARANOID_MENU_SETTINGS_ID, LocaleController.getString("TeleParanoidSettings", R.string.TeleParanoidSettings), settingsIcon));
+        TeleParanoidConfig tpc = TeleParanoidConfig.getInstance(UserConfig.selectedAccount);
+        if(!tpc.shouldHideTeleParanoid) {
+            items.add(new Item(TeleParanoidConstants.HIDE_PARANOID_ID, LocaleController.getString("HideTeleParanoid", R.string.HideTeleParanoid), R.drawable.msg_archive_hide));
+            items.add(new Item(TeleParanoidConstants.PARANOID_MENU_SETTINGS_ID, LocaleController.getString("TeleParanoidSettings", R.string.TeleParanoidSettings), settingsIcon));
+        }
         // TeleParanoid end
         items.add(null); // divider
         items.add(new Item(7, LocaleController.getString("InviteFriends", R.string.InviteFriends), inviteIcon));

@@ -24,6 +24,8 @@ public class TeleParanoidConfig extends BaseController {
     public boolean shouldHideChatJoiningMessages;
     public boolean shouldHideRecommendationsCell;
 
+    public boolean shouldHideTeleParanoid;
+
     private boolean allowReadPacket;
     private int readHistoryCountToResetAllowReadPacket;
 
@@ -69,6 +71,7 @@ public class TeleParanoidConfig extends BaseController {
                     editor.putBoolean("shouldMarkReadAfterSend", shouldMarkReadAfterSend);
                     editor.putBoolean("shouldHideChatJoiningMessages", shouldHideChatJoiningMessages);
                     editor.putBoolean("shouldHideRecommendationsCell", shouldHideRecommendationsCell);
+                    editor.putBoolean("shouldHideTeleParanoid", shouldHideTeleParanoid);
 
 
                     editor.apply();
@@ -94,6 +97,7 @@ public class TeleParanoidConfig extends BaseController {
                 shouldSetOfflineInUpdatePackets = sharedPreferences.getBoolean("shouldSetOfflineInUpdatePackets", false);
                 shouldMarkReadAfterSend = sharedPreferences.getBoolean("shouldMarkReadAfterSend", false);
                 shouldHideRecommendationsCell = sharedPreferences.getBoolean("shouldHideRecommendationsCell", false);
+                shouldHideTeleParanoid = sharedPreferences.getBoolean("shouldHideTeleParanoid", false);
 
                 configLoaded = true;
             } catch (Throwable e) {

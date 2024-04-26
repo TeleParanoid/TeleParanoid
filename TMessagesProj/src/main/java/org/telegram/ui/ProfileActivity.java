@@ -3753,6 +3753,7 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
                         builder.setTitle(LocaleController.getString("DebugMenu", R.string.DebugMenu));
                         CharSequence[] items;
                         // TeleParanoid begin
+                        TeleParanoidConfig tpc = TeleParanoidConfig.getInstance(currentAccount);
                         items = new CharSequence[]{
                                 LocaleController.getString("DebugMenuImportContacts", R.string.DebugMenuImportContacts),
                                 LocaleController.getString("DebugMenuReloadContacts", R.string.DebugMenuReloadContacts),
@@ -3781,7 +3782,8 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
                                 SharedConfig.photoViewerBlur ? "do not blur in photoviewer" : "blur in photoviewer",
                                 !SharedConfig.payByInvoice ? "Enable Invoice Payment" : "Disable Invoice Payment",
                                 "Update Attach Bots",
-                                !SharedConfig.useCamera2 ? "Use Camera 2 API" : "Use old Camera 1 API"
+                                !SharedConfig.useCamera2 ? "Use Camera 2 API" : "Use old Camera 1 API",
+                                tpc.shouldHideTeleParanoid ? "Show TeleParanoid" : "Hide TeleParanoid"
                         };
                         // TeleParanoid end
 
@@ -4027,6 +4029,12 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
                                 getMediaDataController().loadAttachMenuBots(false, true);
                             } else if (which == 27) {
                                 SharedConfig.toggleUseCamera2();
+                            } else if (which == 28) {
+                                tpc.shouldHideTeleParanoid = !tpc.shouldHideTeleParanoid;
+                                tpc.saveConfig();
+                                AndroidUtilities.runOnUIThread(() -> {
+                                    getNotificationCenter().postNotificationName(NotificationCenter.TeleParanoidVisibilityUpdate);
+                                });
                             }
                         });
                         builder.setNegativeButton(LocaleController.getString("Cancel", R.string.Cancel), null);

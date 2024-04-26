@@ -321,6 +321,10 @@ public class NotificationCenter {
     public static final int storiesReadUpdated = totalEvents++;
     public static final int nearEarEvent = totalEvents++;
 
+    // TeleParanoid begin
+    public static final int TeleParanoidVisibilityUpdate = totalEvents++;
+    // TeleParanoid end
+
     public static boolean alreadyLogged;
 
     private SparseArray<ArrayList<NotificationCenterDelegate>> observers = new SparseArray<>();

@@ -656,6 +656,14 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
                 } else if (id == TeleParanoidConstants.PARANOID_MENU_SETTINGS_ID) {
                     presentFragment(new TeleParanoidSettingsActivity());
                     drawerLayoutContainer.closeDrawer(false);
+                } else if (id == TeleParanoidConstants.HIDE_PARANOID_ID) {
+                    TeleParanoidConfig tpc = TeleParanoidConfig.getInstance(currentAccount);
+                    tpc.shouldHideTeleParanoid = true;
+                    tpc.saveConfig();
+                    AndroidUtilities.runOnUIThread(() -> {
+                        NotificationCenter.getGlobalInstance().postNotificationName(NotificationCenter.TeleParanoidVisibilityUpdate);
+                    });
+                    drawerLayoutContainer.closeDrawer(false);
                 }
             }
         });
@@ -810,6 +818,11 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
         NotificationCenter.getGlobalInstance().addObserver(this, NotificationCenter.appUpdateAvailable);
         NotificationCenter.getGlobalInstance().addObserver(this, NotificationCenter.requestPermissions);
         NotificationCenter.getGlobalInstance().addObserver(this, NotificationCenter.billingConfirmPurchaseError);
+
+        // TeleParanoid begin
+        NotificationCenter.getGlobalInstance().addObserver(this, NotificationCenter.TeleParanoidVisibilityUpdate);
+        // TeleParanoid end
+
         NotificationCenter.getInstance(currentAccount).addObserver(this, NotificationCenter.currentUserPremiumStatusChanged);
         LiteMode.addOnPowerSaverAppliedListener(this::onPowerSaver);
         if (actionBarLayout.getFragmentStack().isEmpty() && (layersActionBarLayout == null || layersActionBarLayout.getFragmentStack().isEmpty())) {
@@ -1453,6 +1466,9 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
             NotificationCenter.getInstance(currentAccount).removeObserver(this, NotificationCenter.currentUserPremiumStatusChanged);
             NotificationCenter.getInstance(currentAccount).removeObserver(this, NotificationCenter.chatSwithcedToForum);
             NotificationCenter.getInstance(currentAccount).removeObserver(this, NotificationCenter.storiesEnabledUpdate);
+            // TeleParanoid begin
+            NotificationCenter.getInstance(currentAccount).removeObserver(this, NotificationCenter.TeleParanoidVisibilityUpdate);
+            // TeleParanoid end
         }
         currentAccount = UserConfig.selectedAccount;
         NotificationCenter.getInstance(currentAccount).addObserver(this, NotificationCenter.openBoostForUsersDialog);
@@ -1476,6 +1492,9 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
         NotificationCenter.getInstance(currentAccount).addObserver(this, NotificationCenter.currentUserPremiumStatusChanged);
         NotificationCenter.getInstance(currentAccount).addObserver(this, NotificationCenter.chatSwithcedToForum);
         NotificationCenter.getInstance(currentAccount).addObserver(this, NotificationCenter.storiesEnabledUpdate);
+        // TeleParanoid begin
+        NotificationCenter.getInstance(currentAccount).addObserver(this, NotificationCenter.TeleParanoidVisibilityUpdate);
+        // TeleParanoid end
     }
 
     private void checkLayout() {
@@ -5753,6 +5772,9 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
             NotificationCenter.getInstance(currentAccount).removeObserver(this, NotificationCenter.newSuggestionsAvailable);
             NotificationCenter.getInstance(currentAccount).removeObserver(this, NotificationCenter.currentUserShowLimitReachedDialog);
             NotificationCenter.getInstance(currentAccount).removeObserver(this, NotificationCenter.currentUserPremiumStatusChanged);
+            // TeleParanoid begin
+            NotificationCenter.getInstance(currentAccount).removeObserver(this, NotificationCenter.TeleParanoidVisibilityUpdate);
+            // TeleParanoid end
         }
 
         NotificationCenter.getGlobalInstance().removeObserver(this, NotificationCenter.needShowAlert);
@@ -5770,6 +5792,9 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
         NotificationCenter.getGlobalInstance().removeObserver(this, NotificationCenter.appUpdateAvailable);
         NotificationCenter.getGlobalInstance().removeObserver(this, NotificationCenter.requestPermissions);
         NotificationCenter.getGlobalInstance().removeObserver(this, NotificationCenter.billingConfirmPurchaseError);
+        // TeleParanoid begin
+        NotificationCenter.getGlobalInstance().removeObserver(this, NotificationCenter.TeleParanoidVisibilityUpdate);
+        // TeleParanoid end
 
         LiteMode.removeOnPowerSaverAppliedListener(this::onPowerSaver);
     }
@@ -6231,7 +6256,15 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
     public void didReceivedNotification(int id, final int account, Object... args) {
         if (id == NotificationCenter.appDidLogout) {
             switchToAvailableAccountOrLogout();
-        } else if (id == NotificationCenter.openBoostForUsersDialog) {
+        }
+        // TeleParanoid begin
+        else if (id == NotificationCenter.TeleParanoidVisibilityUpdate) {
+            if (drawerLayoutAdapter != null) {
+                drawerLayoutAdapter.notifyDataSetChanged();
+            }
+        }
+        // TeleParanoid end
+        else if (id == NotificationCenter.openBoostForUsersDialog) {
             long dialogId = (long) args[0];
             ChatMessageCell chatMessageCell = null;
             if (args.length > 1) {
