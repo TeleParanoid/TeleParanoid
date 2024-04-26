@@ -635,6 +635,310 @@ public class GroupCallActivity extends BottomSheet implements NotificationCenter
         }
     }
 
+
+    // TeleParanoid begin
+    public static class AllVolumeSliderConfig {
+        public static double allVolume = 1f;
+    }
+
+    private class AllVolumeSlider extends FrameLayout {
+        private RLottieImageView imageView;
+        private TextView textView;
+        private ChatObject.Call currentCall;
+        private RLottieDrawable speakerDrawable;
+
+        private boolean captured;
+        private float sx, sy;
+        private int thumbX;
+        private double currentProgress;
+        private Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        private Paint paint2 = new Paint(Paint.ANTI_ALIAS_FLAG);
+        private Path path = new Path();
+        private float[] radii = new float[8];
+        private RectF rect = new RectF();
+        private int currentColor;
+        private int oldColor;
+        private float colorChangeProgress;
+        private long lastUpdateTime;
+        private float[] volumeAlphas = new float[3];
+        private boolean dragging;
+
+        public AllVolumeSlider(Context context, ChatObject.Call call) {
+            super(context);
+            setWillNotDraw(false);
+            currentCall = call;
+
+
+            currentProgress = AllVolumeSliderConfig.allVolume;
+            colorChangeProgress = 1.0f;
+
+            setPadding(AndroidUtilities.dp(12), 0, AndroidUtilities.dp(12), 0);
+
+            speakerDrawable = new RLottieDrawable(R.raw.speaker, "" + R.raw.speaker, AndroidUtilities.dp(24), AndroidUtilities.dp(24), true, null);
+
+            imageView = new RLottieImageView(context);
+            imageView.setScaleType(ImageView.ScaleType.CENTER);
+            imageView.setAnimation(speakerDrawable);
+            imageView.setTag(currentProgress == 0 ? 1 : null);
+            addView(imageView, LayoutHelper.createFrame(LayoutHelper.WRAP_CONTENT, 40, Gravity.CENTER_VERTICAL | (LocaleController.isRTL ? Gravity.RIGHT : Gravity.LEFT), 0, 0, 0, 0));
+
+            speakerDrawable.setCustomEndFrame(currentProgress == 0 ? 17 : 34);
+            speakerDrawable.setCurrentFrame(speakerDrawable.getCustomEndFrame() - 1, false, true);
+
+            textView = new TextView(context);
+            textView.setLines(1);
+            textView.setSingleLine(true);
+            textView.setGravity(Gravity.LEFT);
+            textView.setEllipsize(TextUtils.TruncateAt.END);
+            textView.setTextColor(Theme.getColor(Theme.key_voipgroup_actionBarItems));
+            textView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 16);
+            double vol = AllVolumeSliderConfig.allVolume * 20000 / 100.0;
+            textView.setText(String.format(Locale.US, "All %d%%", (int) (vol > 0 ? Math.max(vol, 1) : 0)));
+            textView.setPadding(LocaleController.isRTL ? 0 : AndroidUtilities.dp(43), 0, LocaleController.isRTL ? AndroidUtilities.dp(43) : 0, 0);
+            addView(textView, LayoutHelper.createFrame(LayoutHelper.WRAP_CONTENT, LayoutHelper.WRAP_CONTENT, (LocaleController.isRTL ? Gravity.RIGHT : Gravity.LEFT) | Gravity.CENTER_VERTICAL));
+
+            paint2.setStyle(Paint.Style.STROKE);
+            paint2.setStrokeWidth(AndroidUtilities.dp(1.5f));
+            paint2.setStrokeCap(Paint.Cap.ROUND);
+            paint2.setColor(0xffffffff);
+
+            int percent = (int) (AllVolumeSliderConfig.allVolume * 20000 / 100.0);
+            for (int a = 0; a < volumeAlphas.length; a++) {
+                int p;
+                if (a == 0) {
+                    p = 0;
+                } else if (a == 1) {
+                    p = 50;
+                } else {
+                    p = 150;
+                }
+                if (percent > p) {
+                    volumeAlphas[a] = 1.0f;
+                } else {
+                    volumeAlphas[a] = 0.0f;
+                }
+            }
+        }
+
+        @Override
+        protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+            super.onMeasure(widthMeasureSpec, View.MeasureSpec.makeMeasureSpec(AndroidUtilities.dp(48), View.MeasureSpec.EXACTLY));
+            thumbX = (int) (MeasureSpec.getSize(widthMeasureSpec) * currentProgress);
+        }
+
+        @Override
+        public boolean onInterceptTouchEvent(MotionEvent ev) {
+            return onTouch(ev);
+        }
+
+        @Override
+        public boolean onTouchEvent(MotionEvent event) {
+            return onTouch(event);
+        }
+
+        boolean onTouch(MotionEvent ev) {
+            if (ev.getAction() == MotionEvent.ACTION_DOWN) {
+                sx = ev.getX();
+                sy = ev.getY();
+                return true;
+            } else if (ev.getAction() == MotionEvent.ACTION_UP || ev.getAction() == MotionEvent.ACTION_CANCEL) {
+                captured = false;
+                if (ev.getAction() == MotionEvent.ACTION_UP) {
+                    final ViewConfiguration vc = ViewConfiguration.get(getContext());
+                    if (Math.abs(ev.getY() - sy) < vc.getScaledTouchSlop()) {
+                        thumbX = (int) ev.getX();
+                        if (thumbX < 0) {
+                            thumbX = 0;
+                        } else if (thumbX > getMeasuredWidth()) {
+                            thumbX = getMeasuredWidth();
+                        }
+                        dragging = true;
+                    }
+                }
+                if (dragging) {
+                    if (ev.getAction() == MotionEvent.ACTION_UP) {
+                        onSeekBarDrag(thumbX / (double) getMeasuredWidth(), true);
+                    }
+                    dragging = false;
+                    invalidate();
+                    return true;
+                }
+            } else if (ev.getAction() == MotionEvent.ACTION_MOVE) {
+                if (!captured) {
+                    final ViewConfiguration vc = ViewConfiguration.get(getContext());
+                    if (Math.abs(ev.getY() - sy) > vc.getScaledTouchSlop()) {
+                        return false;
+                    }
+                    if (Math.abs(ev.getX() - sx) > vc.getScaledTouchSlop()) {
+                        captured = true;
+                        getParent().requestDisallowInterceptTouchEvent(true);
+                        if (ev.getY() >= 0 && ev.getY() <= getMeasuredHeight()) {
+                            thumbX = (int) ev.getX();
+                            if (thumbX < 0) {
+                                thumbX = 0;
+                            } else if (thumbX > getMeasuredWidth()) {
+                                thumbX = getMeasuredWidth();
+                            }
+                            dragging = true;
+                            invalidate();
+                            return true;
+                        }
+                    }
+                } else {
+                    if (dragging) {
+                        thumbX = (int) ev.getX();
+                        if (thumbX < 0) {
+                            thumbX = 0;
+                        } else if (thumbX > getMeasuredWidth()) {
+                            thumbX = getMeasuredWidth();
+                        }
+                        onSeekBarDrag(thumbX / (double) getMeasuredWidth(), false);
+                        invalidate();
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        private void onSeekBarDrag(double progress, boolean finalMove) {
+            if (VoIPService.getSharedInstance() == null) {
+                return;
+            }
+            currentProgress = progress;
+
+            for (int i = 0; i < currentCall.participants.size(); i++) {
+                long key = currentCall.participants.keyAt(i);
+                TLRPC.TL_groupCallParticipant participant = call.participants.get(key);
+                participant.volume = (int) (progress * 20000);
+                participant.volume_by_admin = false;
+                participant.flags |= 128;
+
+                double vol = ChatObject.getParticipantVolume(participant) / 100.0;
+                textView.setText(String.format(Locale.US, "All %d%%", (int) (vol > 0 ? Math.max(vol, 1) : 0)));
+                VoIPService.getSharedInstance().setParticipantVolume(participant, participant.volume);
+
+                if (finalMove) {
+
+                    long id = MessageObject.getPeerId(participant.peer);
+                    TLObject object;
+                    if (id > 0) {
+                        object = accountInstance.getMessagesController().getUser(id);
+                    } else {
+                        object = accountInstance.getMessagesController().getChat(-id);
+                    }
+                    if (participant.volume == 0) {
+                        if (scrimPopupWindow != null) {
+                            scrimPopupWindow.dismiss();
+                            scrimPopupWindow = null;
+                        }
+                        dismissAvatarPreview(true);
+                        processSelectedOption(participant, id, ChatObject.canManageCalls(currentChat) ? 0 : 5);
+                    } else {
+                        VoIPService.getSharedInstance().editCallMember(object, null, null, participant.volume, null, null);
+                    }
+                }
+            }
+
+            AllVolumeSliderConfig.allVolume = progress;
+
+            Integer newTag = currentProgress == 0 ? 1 : null;
+            if (imageView.getTag() == null && newTag != null || imageView.getTag() != null && newTag == null) {
+                speakerDrawable.setCustomEndFrame(currentProgress == 0 ? 17 : 34);
+                speakerDrawable.setCurrentFrame(currentProgress == 0 ? 0 : 17);
+                speakerDrawable.start();
+                imageView.setTag(newTag);
+            }
+        }
+
+        @Override
+        protected void onDraw(Canvas canvas) {
+            int prevColor = currentColor;
+            if (currentProgress < 0.25f) {
+                currentColor = 0xffCC5757;
+            } else if (currentProgress > 0.25f && currentProgress < 0.5f) {
+                currentColor = 0xffC9A53B;
+            } else if (currentProgress >= 0.5f && currentProgress <= 0.75f) {
+                currentColor = 0xff57BC6B;
+            } else {
+                currentColor = 0xff4DA6DF;
+            }
+            int color;
+            if (prevColor == 0) {
+                color = currentColor;
+                colorChangeProgress = 1f;
+            } else {
+                color = AndroidUtilities.getOffsetColor(oldColor, prevColor, colorChangeProgress, 1.0f);
+                if (prevColor != currentColor) {
+                    colorChangeProgress = 0.0f;
+                    oldColor = color;
+                }
+            }
+            paint.setColor(color);
+            long newTime = SystemClock.elapsedRealtime();
+            long dt = newTime - lastUpdateTime;
+            if (dt > 17) {
+                dt = 17;
+            }
+            lastUpdateTime = newTime;
+            if (colorChangeProgress < 1.0f) {
+                colorChangeProgress += dt / 200.0f;
+                if (colorChangeProgress > 1.0f) {
+                    colorChangeProgress = 1.0f;
+                } else {
+                    invalidate();
+                }
+            }
+            path.reset();
+            radii[0] = radii[1] = radii[6] = radii[7] = AndroidUtilities.dp(6);
+            float rad = thumbX < AndroidUtilities.dp(12) ? Math.max(0, (thumbX - AndroidUtilities.dp(6)) / (float) AndroidUtilities.dp(6)) : 1.0f;
+            radii[2] = radii[3] = radii[4] = radii[5] = AndroidUtilities.dp(6) * rad;
+            rect.set(0, 0, thumbX, getMeasuredHeight());
+            path.addRoundRect(rect, radii, Path.Direction.CW);
+            path.close();
+            canvas.drawPath(path, paint);
+
+            int percent = (int) (AllVolumeSliderConfig.allVolume * 20000 / 100.0);
+            int cx = imageView.getLeft() + imageView.getMeasuredWidth() / 2 + AndroidUtilities.dp(5);
+            int cy = imageView.getTop() + imageView.getMeasuredHeight() / 2;
+            for (int a = 0; a < volumeAlphas.length; a++) {
+                int p;
+                if (a == 0) {
+                    p = 0;
+                    rad = AndroidUtilities.dp(6);
+                } else if (a == 1) {
+                    p = 50;
+                    rad = AndroidUtilities.dp(10);
+                } else {
+                    p = 150;
+                    rad = AndroidUtilities.dp(14);
+                }
+                float offset = (AndroidUtilities.dp(2) * (1.0f - volumeAlphas[a]));
+                paint2.setAlpha((int) (255 * volumeAlphas[a]));
+                rect.set(cx - rad + offset, cy - rad + offset, cx + rad - offset, cy + rad - offset);
+                canvas.drawArc(rect, -50, 100, false, paint2);
+                if (percent > p) {
+                    if (volumeAlphas[a] < 1.0f) {
+                        volumeAlphas[a] += dt / 180.0f;
+                        if (volumeAlphas[a] > 1.0f) {
+                            volumeAlphas[a] = 1.0f;
+                        }
+                        invalidate();
+                    }
+                } else {
+                    if (volumeAlphas[a] > 0.0f) {
+                        volumeAlphas[a] -= dt / 180.0f;
+                        if (volumeAlphas[a] < 0.0f) {
+                            volumeAlphas[a] = 0.0f;
+                        }
+                        invalidate();
+                    }
+                }
+            }
+        }
+    }
+    // TeleParanoid end
+
     private class VolumeSlider extends FrameLayout {
 
         private RLottieImageView imageView;
@@ -7263,17 +7567,31 @@ public class GroupCallActivity extends BottomSheet implements NotificationCenter
 
         LinearLayout buttonsLayout = new LinearLayout(getContext());
         LinearLayout volumeLayout = !participant.muted_by_you ? new LinearLayout(getContext()) : null;
+        // TeleParanoid begin
+        LinearLayout allVolumeLayout = new LinearLayout(getContext());
+        // TeleParanoid end
         currentOptionsLayout = buttonsLayout;
         LinearLayout linearLayout = new LinearLayout(getContext()) {
             @Override
             protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
                 int width = MeasureSpec.getSize(widthMeasureSpec);
                 buttonsLayout.measure(MeasureSpec.makeMeasureSpec(width, MeasureSpec.AT_MOST), MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED));
+                // TeleParanoid begin
+                allVolumeLayout.measure(MeasureSpec.makeMeasureSpec(buttonsLayout.getMeasuredWidth(), MeasureSpec.EXACTLY), MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED));
+                // TeleParanoid end
+
                 if (volumeLayout != null) {
                     volumeLayout.measure(MeasureSpec.makeMeasureSpec(buttonsLayout.getMeasuredWidth(), MeasureSpec.EXACTLY), MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED));
-                    setMeasuredDimension(buttonsLayout.getMeasuredWidth(), buttonsLayout.getMeasuredHeight() + volumeLayout.getMeasuredHeight());
+                    // TeleParanoid begin
+                    //setMeasuredDimension(buttonsLayout.getMeasuredWidth(), buttonsLayout.getMeasuredHeight() + volumeLayout.getMeasuredHeight());
+
+                    setMeasuredDimension(buttonsLayout.getMeasuredWidth(), buttonsLayout.getMeasuredHeight() + volumeLayout.getMeasuredHeight() + allVolumeLayout.getMeasuredHeight());
+                    // TeleParanoid end
                 } else {
-                    setMeasuredDimension(buttonsLayout.getMeasuredWidth(), buttonsLayout.getMeasuredHeight());
+                    // TeleParanoid begin
+                    //setMeasuredDimension(buttonsLayout.getMeasuredWidth(), buttonsLayout.getMeasuredHeight());
+                    setMeasuredDimension(buttonsLayout.getMeasuredWidth(), buttonsLayout.getMeasuredHeight() + allVolumeLayout.getMeasuredHeight());
+                    // TeleParanoid end
                 }
             }
         };
@@ -7291,6 +7609,19 @@ public class GroupCallActivity extends BottomSheet implements NotificationCenter
             volumeSlider = new VolumeSlider(getContext(), participant);
             volumeLayout.addView(volumeSlider, LayoutHelper.MATCH_PARENT, 48);
         }
+
+        // TeleParanoid begin
+        if (!view.isSelfUser()) {
+            Drawable shadowDrawable = getContext().getResources().getDrawable(R.drawable.popup_fixed_alert).mutate();
+            shadowDrawable.setColorFilter(new PorterDuffColorFilter(color, PorterDuff.Mode.MULTIPLY));
+            allVolumeLayout.setBackgroundDrawable(shadowDrawable);
+            linearLayout.addView(allVolumeLayout, LayoutHelper.createLinear(LayoutHelper.WRAP_CONTENT, LayoutHelper.WRAP_CONTENT, 0, 0, 0, 0));
+
+            AllVolumeSlider allVolumeSlider = new AllVolumeSlider(getContext(), call);
+            allVolumeLayout.addView(allVolumeSlider, LayoutHelper.MATCH_PARENT, 48);
+        }
+        // TeleParanoid end
+
 
         buttonsLayout.setMinimumWidth(AndroidUtilities.dp(240));
         buttonsLayout.setOrientation(LinearLayout.VERTICAL);
