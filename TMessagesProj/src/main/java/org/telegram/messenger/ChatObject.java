@@ -1491,7 +1491,10 @@ public class ChatObject {
     }
 
     public static int getParticipantVolume(TLRPC.TL_groupCallParticipant participant) {
-        return ((participant.flags & 128) != 0 ? participant.volume : 10000);
+        // TeleParanoid begin
+        //return ((participant.flags & 128) != 0 ? participant.volume : 10000);
+        return  ((participant.flags & 128) != 0 ? participant.volume : (int)(GroupCallActivity.AllVolumeSliderConfig.allVolume * 10000));
+        // TeleParanoid end
     }
 
     private static boolean isBannableAction(int action) {
